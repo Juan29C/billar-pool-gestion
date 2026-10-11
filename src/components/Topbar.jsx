@@ -1,0 +1,142 @@
+import React from 'react';
+import { Clock, PlusCircle, ShoppingBag, ShieldCheck, Search, Bell } from 'lucide-react';
+import { useBillar } from '../context/BillarContext';
+
+export default function Topbar() {
+  const { currentView, setCurrentView, tables, shift } = useBillar();
+
+  const occupiedCount = tables.filter(t => t.status === 'occupied').length;
+  const availableCount = tables.filter(t => t.status === 'available').length;
+  const totalSales = shift.cashSales + shift.yapeSales + shift.plinSales + shift.cardSales;
+
+  const titles = {
+    dashboard: 'Dashboard Operativo',
+    tables: 'Gestión de Mesas y Cronómetros',
+    pos: 'Punto de Venta (POS)',
+    inventory: 'Control de Inventario y Almacén',
+    cash: 'Caja, Turnos y Arqueo',
+    history: 'Historial de Operaciones',
+    reports: 'Reportes y Métricas Comerciales',
+    settings: 'Configuración y Tarifas',
+    public: 'Vista Pública de Pantalla'
+  };
+
+  const currentDateStr = new Intl.DateTimeFormat('es-PE', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date());
+
+  return (
+    <header style={{
+      height: 'var(--topbar-height)',
+      backgroundColor: 'var(--surface-card)',
+      borderBottom: '1px solid var(--border-subtle)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 28px',
+      position: 'sticky',
+      top: 0,
+      zIndex: 40
+    }}>
+      {/* Title & Path */}
+      <div>
+        <h1 style={{
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          color: 'var(--color-charcoal)',
+          margin: 0
+        }}>
+          {titles[currentView] || 'Billar Club'}
+        </h1>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          Club & Lounge — Sistema Central
+        </span>
+      </div>
+
+      {/* Quick Indicators & Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        {/* Live Counters */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '6px 14px',
+          borderRadius: 'var(--radius-full)',
+          backgroundColor: 'var(--bg-canvas)',
+          border: '1px solid var(--border-subtle)',
+          fontSize: '0.82rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--status-available)'
+            }} />
+            <span style={{ color: 'var(--text-secondary)' }}>
+              <strong>{availableCount}</strong> Libres
+            </span>
+          </div>
+
+          <span style={{ color: 'var(--border-medium)' }}>|</span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--status-occupied)'
+            }} />
+            <span style={{ color: 'var(--text-secondary)' }}>
+              <strong>{occupiedCount}</strong> En Juego
+            </span>
+          </div>
+
+          <span style={{ color: 'var(--border-medium)' }}>|</span>
+
+          <div style={{ color: 'var(--color-terracotta)', fontWeight: 700 }}>
+            Ventas: S/ {totalSales.toFixed(2)}
+          </div>
+        </div>
+
+        {/* Date / Time */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: 'var(--text-muted)',
+          fontSize: '0.82rem',
+          fontWeight: 500
+        }}>
+          <Clock size={16} />
+          <span style={{ textTransform: 'capitalize' }}>{currentDateStr}</span>
+        </div>
+
+        {/* Action Button */}
+        {currentView !== 'tables' && (
+          <button 
+            className="btn btn-primary btn-sm"
+            onClick={() => setCurrentView('tables')}
+          >
+            <PlusCircle size={15} />
+            <span>Ver Mesas</span>
+          </button>
+        )}
+
+        {currentView !== 'pos' && (
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={() => setCurrentView('pos')}
+          >
+            <ShoppingBag size={15} />
+            <span>Nueva Venta</span>
+          </button>
+        )}
+      </div>
+    </header>
+  );
+}
