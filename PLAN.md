@@ -76,19 +76,23 @@ Construir los componentes atómicos y moleculares para evitar duplicidad de esti
 
 ---
 
-### Fase 5: Dashboard Principal, Caja y Turnos — [PRÓXIMA A EJECUTAR]
+### Fase 5: Dashboard Principal, Caja y Turnos — [COMPLETADA Y VERIFICADA]
 * **Dashboard**:
-  * Tarjetas KPI de alto impacto (Mesas activas, Ingresos del día, Partidas jugadas, Alertas de inventario).
-  * Resumen visual del estado de las mesas en tiempo real.
-  * Tabla de actividad reciente y gráfico simulado de ingresos.
+  * 4 Tarjetas KPI interactivas (Ocupación de Sala %, Ingresos del Turno, Operaciones Totales, Alertas de Stock) con navegación fluida al hacer clic.
+  * Distribución de las 6 Mesas en vivo con semáforos, tipo de juego (Pool vs Francés) y cronómetros.
+  * Feed de últimos movimientos del turno con discriminación de ingresos y egresos.
+  * Barra de acciones rápidas para aperturar partidas o despachar en POS.
 * **Caja y Turnos**:
-  * Indicador de turno abierto/cerrado con hora y responsable.
-  * Resumen de ingresos por método de pago (Efectivo vs. Billeteras digitales vs. Tarjetas).
-  * Registro de egresos rápidos simulados y arqueo de caja con balance.
+  * Hero card nocturno con estado del turno (*Activo/Cerrado*), responsable, hora y total recaudado.
+  * Desglose financiero por canal de pago (*Efectivo en Gaveta, Yape, Plin, Tarjeta, Total Egresos*).
+  * Modal estandarizado de registro de egresos / gastos menores (`Modal.jsx`, 540px) conectado al saldo en gaveta.
+  * Modal interactivo de cierre de turno y arqueo físico (`Modal.jsx`, 640px) con cálculo automático en vivo de balance y diferencias (*Cuadre Exacto, Sobrante, Faltante*).
+  * Modal de apertura de nuevo turno (`Modal.jsx`, 540px) con asignación de fondo inicial.
+  * Historial de arqueos y cierres anteriores.
 
 ---
 
-### Fase 6: Historial de Operaciones, Reportes y Configuración
+### Fase 6: Historial de Operaciones, Reportes y Configuración — [PRÓXIMA A EJECUTAR]
 * **Historial de Operaciones**:
   * Filtros por fecha, tipo de operación (Partida, Venta POS) y método de pago.
   * Modal de detalle con desglose de la transacción.

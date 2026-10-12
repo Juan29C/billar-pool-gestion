@@ -330,12 +330,119 @@ export function BillarProvider({ children }) {
     }));
   };
 
+  // Historial de Cierres de Turno
+  const [shiftHistory, setShiftHistory] = useState([
+    {
+      id: 'SFT-101',
+      date: 'Ayer — Turno Noche (23:30)',
+      cashier: 'Luis Ramos',
+      totalSales: 680.50,
+      cashSales: 290.00,
+      yapeSales: 240.50,
+      plinSales: 50.00,
+      cardSales: 100.00,
+      expenses: 40.00,
+      initialCash: 250.00,
+      countedCash: 500.00,
+      diff: 0.00,
+      notes: 'Cuadre conforme al cierre de noche'
+    },
+    {
+      id: 'SFT-100',
+      date: 'Ayer — Turno Tarde (17:00)',
+      cashier: 'Carlos Mendoza',
+      totalSales: 420.00,
+      cashSales: 180.00,
+      yapeSales: 150.00,
+      plinSales: 30.00,
+      cardSales: 60.00,
+      expenses: 25.00,
+      initialCash: 200.00,
+      countedCash: 357.00,
+      diff: 2.00,
+      notes: 'Sobrante de S/ 2.00 por propina voluntaria'
+    }
+  ]);
+
+  // Registrar Egreso / Gasto Menor
+  const addExpense = ({ description, amount, category }) => {
+    const numericAmount = Math.abs(parseFloat(amount) || 0);
+    if (!numericAmount) return;
+
+    setShift(prev => ({
+      ...prev,
+      expenses: prev.expenses + numericAmount
+    }));
+
+    const newTrx = {
+      id: `EGR-${Math.floor(1000 + Math.random() * 9000)}`,
+      time: 'Hace un momento',
+      type: 'Egreso de Caja',
+      description: `${description} (${category || 'General'})`,
+      method: 'Efectivo',
+      amount: -numericAmount,
+      status: 'Completado'
+    };
+
+    setTransactions(prev => [newTrx, ...prev]);
+    return newTrx;
+  };
+
+  // Cierre de Turno y Arqueo
+  const closeShift = ({ countedCash, notes }) => {
+    const expected = shift.initialCash + shift.cashSales - shift.expenses;
+    const counted = parseFloat(countedCash) || 0;
+    const diff = counted - expected;
+
+    const record = {
+      id: `SFT-${Math.floor(100 + Math.random() * 900)}`,
+      date: `Hoy — ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+      cashier: shift.cashierName,
+      totalSales: shift.cashSales + shift.yapeSales + shift.plinSales + shift.cardSales,
+      cashSales: shift.cashSales,
+      yapeSales: shift.yapeSales,
+      plinSales: shift.plinSales,
+      cardSales: shift.cardSales,
+      expenses: shift.expenses,
+      initialCash: shift.initialCash,
+      countedCash: counted,
+      diff,
+      notes: notes || 'Cierre regular de turno'
+    };
+
+    setShiftHistory(prev => [record, ...prev]);
+    setShift(prev => ({
+      ...prev,
+      isOpen: false,
+      lastClosedRecord: record
+    }));
+
+    return record;
+  };
+
+  // Apertura de Nuevo Turno
+  const openShift = ({ cashierName, initialCash }) => {
+    setShift({
+      isOpen: true,
+      openedAt: new Date().toISOString(),
+      cashierName: cashierName || 'Cajero de Turno',
+      initialCash: parseFloat(initialCash) || 0,
+      cashSales: 0,
+      yapeSales: 0,
+      plinSales: 0,
+      cardSales: 0,
+      expenses: 0,
+      lastClosedRecord: null
+    });
+  };
+
   return (
     <BillarContext.Provider value={{
       tables,
       products,
       rates,
       shift,
+      shiftHistory,
       transactions,
       cart,
       currentView,
@@ -357,7 +464,10 @@ export function BillarProvider({ children }) {
       addProduct,
       updateProduct,
       deleteProduct,
-      adjustStock
+      adjustStock,
+      addExpense,
+      closeShift,
+      openShift
     }}>
       {children}
     </BillarContext.Provider>
