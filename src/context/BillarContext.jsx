@@ -280,6 +280,54 @@ export function BillarProvider({ children }) {
     }));
 
     clearCart();
+    return newTrx;
+  };
+
+  // Acciones de Gestión de Inventario
+  const addProduct = (newProduct) => {
+    const id = `prod_${Date.now()}`;
+    const productToAdd = {
+      id,
+      name: newProduct.name || 'Nuevo Producto',
+      sku: newProduct.sku || `SKU-${Math.floor(100 + Math.random() * 900)}`,
+      category: newProduct.category || 'Otros',
+      price: Number(newProduct.price) || 0,
+      cost: Number(newProduct.cost) || 0,
+      stock: Number(newProduct.stock) || 0,
+      minStock: Number(newProduct.minStock) || 5,
+      unit: newProduct.unit || 'und'
+    };
+    setProducts(prev => [productToAdd, ...prev]);
+    return productToAdd;
+  };
+
+  const updateProduct = (productId, updatedFields) => {
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId) {
+        return {
+          ...p,
+          ...updatedFields,
+          price: updatedFields.price !== undefined ? Number(updatedFields.price) : p.price,
+          cost: updatedFields.cost !== undefined ? Number(updatedFields.cost) : p.cost,
+          stock: updatedFields.stock !== undefined ? Number(updatedFields.stock) : p.stock,
+          minStock: updatedFields.minStock !== undefined ? Number(updatedFields.minStock) : p.minStock
+        };
+      }
+      return p;
+    }));
+  };
+
+  const deleteProduct = (productId) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+  };
+
+  const adjustStock = (productId, delta) => {
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId) {
+        return { ...p, stock: Math.max(0, p.stock + delta) };
+      }
+      return p;
+    }));
   };
 
   return (
@@ -305,7 +353,11 @@ export function BillarProvider({ children }) {
       addToCart,
       updateCartQty,
       clearCart,
-      checkoutCart
+      checkoutCart,
+      addProduct,
+      updateProduct,
+      deleteProduct,
+      adjustStock
     }}>
       {children}
     </BillarContext.Provider>

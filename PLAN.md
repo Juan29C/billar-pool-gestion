@@ -59,20 +59,24 @@ Construir los componentes atómicos y moleculares para evitar duplicidad de esti
 
 ---
 
-### Fase 4: Punto de Venta (POS) y Gestión de Inventario — [PRÓXIMA A EJECUTAR]
+### Fase 4: Punto de Venta (POS) y Gestión de Inventario — [COMPLETADA Y VERIFICADA]
 * **Punto de Venta (POS)**:
-  * Catálogo visual con pestañas por categorías (Bebidas frías, Cervezas, Snacks, Accesorios).
-  * Buscador interactivo por nombre de producto.
-  * Carrito de compras lateral con ajuste de cantidades, total calculado y selector de pago (Efectivo, Yape, Plin, Tarjeta).
-  * Modal de ticket/comprobante de venta simulado.
+  * Catálogo visual fluido en cuadrícula con chips y badges de categorías (*Cervezas, Bebidas sin Alcohol, Piqueos, Snacks, Accesorios*).
+  * Buscador en tiempo real por nombre o SKU con botón de limpieza rápida.
+  * Carrito de compras lateral con ajuste de cantidades `[-] [qty] [+]`, cálculo automático de subtotal, IGV y total.
+  * Selector de método de pago con 4 botones simétricos (*Efectivo, Yape, Plin, Tarjeta*).
+  * Modal temático de comprobante/ticket digital (`Modal.jsx`, 640px) con desglose, botón de impresión y actualización de caja.
+  * Modal de confirmación para vaciado de carrito con `ConfirmModal.jsx`.
 * **Inventario**:
-  * Tabla limpia de productos con SKU, categoría, precio de venta, costo y stock actual.
-  * Alertas visuales de stock bajo.
-  * Modal para simular creación y edición de producto.
+  * 4 tarjetas KPI de resumen de almacén (total productos, unidades físicas, valorización total de stock y alerta de reposición).
+  * Tabla limpia de inventario con SKU monoespaciado, control ágil de stock `[- / +]`, badges de estado (*Óptimo, Alerta, Agotado*).
+  * Modal estandarizado de registro de nuevo producto (`Modal.jsx`, 620px) conectado al contexto.
+  * Modal estandarizado de edición de producto (`Modal.jsx`, 620px).
+  * Modal de confirmación para eliminación de producto con `ConfirmModal.jsx`.
 
 ---
 
-### Fase 5: Dashboard Principal, Caja y Turnos
+### Fase 5: Dashboard Principal, Caja y Turnos — [PRÓXIMA A EJECUTAR]
 * **Dashboard**:
   * Tarjetas KPI de alto impacto (Mesas activas, Ingresos del día, Partidas jugadas, Alertas de inventario).
   * Resumen visual del estado de las mesas en tiempo real.

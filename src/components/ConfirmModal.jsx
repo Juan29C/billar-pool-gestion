@@ -17,10 +17,10 @@ export default function ConfirmModal({
   loading = false
 }) {
   const iconConfig = {
-    warning: { icon: AlertTriangle, color: 'var(--status-occupied)', danger: false },
-    danger: { icon: AlertCircle, color: 'var(--status-danger)', danger: true },
-    info: { icon: HelpCircle, color: 'var(--color-charcoal)', danger: false },
-    success: { icon: CheckCircle2, color: 'var(--status-available)', danger: false }
+    warning: { icon: AlertTriangle, danger: false, confirmBtnClass: 'btn btn-primary' },
+    danger: { icon: AlertCircle, danger: true, confirmBtnClass: 'btn btn-danger' },
+    info: { icon: HelpCircle, danger: false, confirmBtnClass: 'btn btn-primary' },
+    success: { icon: CheckCircle2, danger: false, confirmBtnClass: 'btn btn-primary' }
   };
 
   const currentConfig = iconConfig[variant] || iconConfig.warning;
@@ -31,33 +31,36 @@ export default function ConfirmModal({
       onClose={onClose}
       title={title}
       icon={currentConfig.icon}
-      iconColor={currentConfig.color}
       danger={currentConfig.danger}
-      maxWidth="460px"
+      maxWidth="480px"
       footer={
         <>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary modal-btn"
             onClick={onClose}
             disabled={loading}
-            style={{ minHeight: '42px', padding: '0 20px' }}
           >
             {cancelText}
           </button>
           <button
             type="button"
-            className={currentConfig.danger ? 'btn btn-danger' : 'btn btn-primary'}
+            className={`${currentConfig.confirmBtnClass} modal-btn`}
             onClick={onConfirm}
             disabled={loading}
-            style={{ minHeight: '42px', padding: '0 22px' }}
+            style={currentConfig.danger ? { backgroundColor: '#B93838', borderColor: '#B93838', color: '#FFFFFF' } : {}}
           >
             {loading ? 'Procesando...' : confirmText}
           </button>
         </>
       }
     >
-      <div style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+      <div style={{
+        fontSize: '0.94rem',
+        color: 'var(--text-secondary)',
+        lineHeight: 1.55,
+        padding: '4px 0'
+      }}>
         {message}
       </div>
     </Modal>
