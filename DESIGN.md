@@ -145,3 +145,44 @@ Toda pantalla construida debe cumplir rigurosamente con:
 2. Mantener la consistencia en espaciados (múltiplos de 4px y 8px).
 3. Nunca dejar botones sin hover o estados interactivos inertes.
 4. Garantizar legibilidad perfecta con contrastes accesibles WCAG AA.
+
+---
+
+## 8. Estrategia Responsive, Sidebar Compacto y Componentes Especiales
+
+### 8.1. Breakpoints y Adaptabilidad Multi-Dispositivo (Laptop vs. Monitor)
+* **Monitor Amplio (≥ 1280px)**: Sidebar expandido (260px) o colapsado a elección, grid de mesas de 3 a 4 columnas con proporciones holgadas.
+* **Laptop y Portátiles (901px a 1279px)**:
+  * Alto de viewport reducido (~700px a 768px): el sidebar colapsable permite liberar **188px de ancho horizontal**.
+  * Grid de mesas fluido con `clamp(280px, 28vw, 360px)` para evitar apretamiento o scroll vertical innecesario.
+* **Tablet y Móvil (≤ 900px)**:
+  * Sidebar se convierte en **drawer off-canvas** animado con overlay oscuro, accesible mediante botón de menú en la barra superior.
+  * Modales adoptan formato **bottom-sheet táctil** (esquinas redondeadas arriba, 100% de ancho) para uso cómodo con una sola mano.
+
+### 8.2. Sidebar Dinámico: Modo Expandido vs. Modo Compacto
+* **Modo Expandido (260px)**: Emblema completo, nombre del club, textos de módulo, badges de estado y panel de turno.
+* **Modo Compacto (72px)**:
+  * Solo los **iconos preponderantes** centrados verticalmente con acabado Terracota en hover/activo.
+  * Emblema superior condensado con la Bola 8 de billar.
+  * Badges circulares flotantes sobre el icono para notificar mesas activas.
+  * **Tooltips flotantes instantáneos** al pasar el cursor sobre cada icono.
+  * Botón de alternancia (*Toggle*) accesible en la base del sidebar con guardado de preferencia en `localStorage`.
+
+### 8.3. Navegación con Soporte de Rueda de Ratón (Scroll Click / Middle Click)
+* Todos los ítems del sidebar se implementan con elementos de anclaje nativos `<a>` con URLs de hash (`#tables`, `#pos`, `#inventory`).
+* **Clic Izquierdo**: Navegación instantánea en la misma pestaña sin recarga de página (SPA).
+* **Clic Central (Rueda del Ratón / Scroll Click)** o `Ctrl + Clic`: Apertura de la vista seleccionada en una pestaña nueva limpia y funcional.
+
+### 8.4. Catálogo Integrado y Buscador Limpio de Productos
+* En lugar de selectores flotantes que tapen los controles, el modal de consumos integra el buscador directamente en el cuerpo del diálogo:
+  * **Input con invitación activa**: `🔍 Escribe para buscar (ej. cerveza, tequeños, red bull)...` sin producto forzado por defecto.
+  * **Chips de categoría rápidos** (*Todos*, *Cervezas*, *Bebidas*, *Piqueos*, *Snacks*).
+  * Lista visual accesible con icono de producto, código SKU, nombre, precio destacado en Terracota (`S/ XX.00`) y badge de inventario.
+
+### 8.5. Arquitectura de Modales Espaciosos y Centrado Absoluto (Anti-Cortes)
+* **Centrado Absoluto**: El contenedor de modales utiliza `display: flex; align-items: center; justify-content: center; margin: auto;` y `max-height: min(90vh, 760px)`, garantizando que el modal jamás se caiga al suelo de la pantalla ni quede cortado por la barra de tareas de Windows.
+* **Escala de Anchos según Función Operativa**:
+  * **Modal de Consumos (Catálogo 2 Columnas)**: **`maxWidth: 840px`**. A la izquierda el buscador y lista de productos; a la derecha la ficha del producto seleccionado, selector táctil de cantidades `[-] [ 1 ] [+]` y la cuenta histórica de la mesa.
+  * **Modal de Liquidación y Cobro (Voucher)**: **`maxWidth: 640px`**, espacioso, con desglose contable alineado a la derecha y selector táctil de método de pago (44px).
+  * **Modal de Inicio de Partida**: **`maxWidth: 560px`**, claro, con selector de tarifas por hora.
+* **Cabecera Nocturna Estilo Billar Club**: Fondo Carbón Cálido (`#2B2725`) con acentos Terracota e iconografía temática.

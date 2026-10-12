@@ -38,8 +38,32 @@ export function BillarProvider({ children }) {
   // Carrito del POS
   const [cart, setCart] = useState([]);
 
-  // Vista actual en el panel ('dashboard', 'tables', 'pos', 'inventory', 'cash', 'history', 'reports', 'settings', 'public')
-  const [currentView, setCurrentView] = useState('tables');
+  // Vista actual sincronizada con hash de la URL para soporte de pestañas y middle-click
+  const getInitialView = () => {
+    const hash = window.location.hash.replace('#', '').trim();
+    const validViews = ['dashboard', 'tables', 'pos', 'inventory', 'cash', 'history', 'reports', 'settings', 'public'];
+    return validViews.includes(hash) ? hash : 'tables';
+  };
+
+  const [currentView, setCurrentViewInternal] = useState(getInitialView);
+
+  const setCurrentView = (view) => {
+    window.location.hash = view;
+    setCurrentViewInternal(view);
+  };
+
+  // Escuchar cambios de hash (Atrás/Adelante y navegación externa)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').trim();
+      const validViews = ['dashboard', 'tables', 'pos', 'inventory', 'cash', 'history', 'reports', 'settings', 'public'];
+      if (validViews.includes(hash)) {
+        setCurrentViewInternal(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Reloj global por segundo para actualizar cronómetros en vivo
   const [currentTime, setCurrentTime] = useState(Date.now());

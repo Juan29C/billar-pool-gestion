@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BillarProvider, useBillar } from './context/BillarContext';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -16,6 +16,7 @@ import './styles/components.css';
 
 function MainLayout() {
   const { currentView } = useBillar();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Si está en la vista pública de pantalla (ej. TV o quiosco vertical), no mostramos la barra administrativa
   if (currentView === 'public') {
@@ -46,13 +47,29 @@ function MainLayout() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-canvas)' }}>
-      {/* Barra Lateral en Carbón Cálido (#2B2725) */}
-      <Sidebar />
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-canvas)', position: 'relative' }}>
+      {/* Backdrop para Drawer Móvil */}
+      {mobileSidebarOpen && (
+        <div 
+          onClick={() => setMobileSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 90,
+            backdropFilter: 'blur(2px)'
+          }}
+        />
+      )}
+
+      {/* Barra Lateral (Adaptada con clase responsive) */}
+      <div className={`sidebar-wrapper ${mobileSidebarOpen ? 'sidebar-mobile-open' : ''}`}>
+        <Sidebar onNavClick={() => setMobileSidebarOpen(false)} />
+      </div>
 
       {/* Área Principal de Trabajo */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-        <Topbar />
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, width: '100%' }}>
+        <Topbar onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
         <main style={{ flex: 1, overflowY: 'auto' }}>
           {renderCurrentView()}
         </main>

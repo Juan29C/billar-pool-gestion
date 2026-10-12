@@ -34,29 +34,32 @@ Desarrollar una aplicación web interactiva y comercialmente presentable que cum
 
 ---
 
-### Fase 2: Componentes Reutilizables de Interfaz (Design System)
+### Fase 2: Componentes Reutilizables de Interfaz (Design System Avanzado)
 Construir los componentes atómicos y moleculares para evitar duplicidad de estilos:
-* **Botones**: Primario Terracota, Secundario neutro, Contorno y Peligro.
+* **Botones**: Primario Terracota, Secundario neutro, Contorno y Peligro con alturas táctiles uniformes de 44px.
 * **Badges / Chips**: Estados de mesa (Disponible, Ocupada, Por cobrar, Mantenimiento) y estados de stock.
 * **Tarjetas y Contenedores**: Con bordes suaves y elevación nivel 1/2.
 * **Inputs y Selects**: Con estilo pulido y validaciones visuales.
-* **Modales Reutilizables**: Backdrop desenfocado y animación de apertura.
+* **Buscador de Productos (`ProductSearchSelect`)**: Combobox reutilizable con autocompletado en tiempo real, chips de categorías, precios y badges de stock.
+* **Modales Reutilizables Temáticos (`Modal` & `ConfirmModal`)**: Cabecera nocturna en Carbón Cálido (`#2B2725`), iconografía de billar/bar, alineación simétrica y formato bottom-sheet táctil en pantallas pequeñas.
+* **Sidebar Dinámico**: Modo expandido (260px) y compacto (72px), con soporte nativo de apertura en nueva pestaña vía clic central (scroll-click).
 
 ---
 
-### Fase 3: Módulo de Mesas (Núcleo Operativo)
-* **Grid de Mesas**:
-  * Representación visual de 6 a 8 mesas con tipos (Pool estándar, Tres bandas, Snooker).
+### Fase 3: Módulo de Mesas (Núcleo Operativo Físico) — [COMPLETADA Y VERIFICADA]
+* **Grid de Mesas Adaptativo (Laptop vs. Monitor)**:
+  * Distribución oficial del local: 6 mesas físicas (4 de Pool con 6 troneras y 2 de Billar Francés con diamantes).
   * Cronómetro visual en vivo por segundo (horas, minutos y segundos).
   * Tarifa por hora aplicada y cálculo dinámico de importe en tiempo real (`S/ XX.XX`).
-* **Modales Interactivos**:
-  * Modal *Iniciar Partida*: Selección de tarifa y notas.
-  * Modal *Agregar Consumo*: Selección rápida de bebidas/snacks asociados a la mesa.
-  * Modal *Finalizar y Cobro*: Desglose de tiempo jugado, consumos asociados, total a pagar y confirmación simulada.
+* **Modales Interactivos Temáticos de Alta Visibilidad**:
+  * Modal *Iniciar Partida*: Selección de tarifa y notas con imagotipo de billar (ancho optimizado 600px).
+  * Modal *Agregar Consumo*: Rediseño espacioso a 2 columnas (1020px), buscador limpio en tiempo real, chips de categoría y catálogo con scroll amplio (hasta 6 productos a la vista).
+  * Modal *Liquidación y Cobro*: Voucher contable ampliado (700px) con líneas punteadas, desglose por conceptos y selector simétrico de método de pago.
+  * Centrado absoluto en viewport vía `createPortal(..., document.body)` inmune a transforms y seguro contra recortes de barra de tareas.
 
 ---
 
-### Fase 4: Punto de Venta (POS) y Gestión de Inventario
+### Fase 4: Punto de Venta (POS) y Gestión de Inventario — [PRÓXIMA A EJECUTAR]
 * **Punto de Venta (POS)**:
   * Catálogo visual con pestañas por categorías (Bebidas frías, Cervezas, Snacks, Accesorios).
   * Buscador interactivo por nombre de producto.

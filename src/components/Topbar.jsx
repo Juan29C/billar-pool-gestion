@@ -1,8 +1,8 @@
 import React from 'react';
-import { Clock, PlusCircle, ShoppingBag, ShieldCheck, Search, Bell } from 'lucide-react';
+import { Clock, PlusCircle, ShoppingBag, Menu } from 'lucide-react';
 import { useBillar } from '../context/BillarContext';
 
-export default function Topbar() {
+export default function Topbar({ onToggleMobileSidebar }) {
   const { currentView, setCurrentView, tables, shift } = useBillar();
 
   const occupiedCount = tables.filter(t => t.status === 'occupied').length;
@@ -31,40 +31,62 @@ export default function Topbar() {
 
   return (
     <header style={{
-      height: 'var(--topbar-height)',
+      minHeight: 'var(--topbar-height)',
       backgroundColor: 'var(--surface-card)',
       borderBottom: '1px solid var(--border-subtle)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 28px',
+      padding: '12px 24px',
       position: 'sticky',
       top: 0,
-      zIndex: 40
+      zIndex: 40,
+      flexWrap: 'wrap',
+      gap: '12px'
     }}>
-      {/* Title & Path */}
-      <div>
-        <h1 style={{
-          fontSize: '1.25rem',
-          fontWeight: 700,
-          color: 'var(--color-charcoal)',
-          margin: 0
-        }}>
-          {titles[currentView] || 'Billar Club'}
-        </h1>
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-          Club & Lounge — Sistema Central
-        </span>
+      {/* Title & Mobile Toggle */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Botón Hamburguesa Móvil */}
+        <button
+          type="button"
+          onClick={onToggleMobileSidebar}
+          aria-label="Abrir menú"
+          className="btn-ghost mobile-menu-btn"
+          style={{
+            padding: '8px',
+            borderRadius: '8px',
+            border: '1px solid var(--border-subtle)',
+            cursor: 'pointer',
+            display: 'none' // Se muestra vía CSS en media query
+          }}
+        >
+          <Menu size={20} color="var(--color-charcoal)" />
+        </button>
+
+        <div>
+          <h1 style={{
+            fontSize: '1.25rem',
+            fontWeight: 800,
+            color: 'var(--color-charcoal)',
+            margin: 0,
+            lineHeight: 1.2
+          }}>
+            {titles[currentView] || 'Billar Club'}
+          </h1>
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            Club & Lounge — Sistema Central
+          </span>
+        </div>
       </div>
 
       {/* Quick Indicators & Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
         {/* Live Counters */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          padding: '6px 14px',
+          gap: '10px',
+          padding: '6px 12px',
           borderRadius: 'var(--radius-full)',
           backgroundColor: 'var(--bg-canvas)',
           border: '1px solid var(--border-subtle)',
@@ -103,8 +125,8 @@ export default function Topbar() {
           </div>
         </div>
 
-        {/* Date / Time */}
-        <div style={{
+        {/* Date / Time (Ocultable en pantallas muy pequeñas) */}
+        <div className="topbar-date" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
@@ -112,7 +134,7 @@ export default function Topbar() {
           fontSize: '0.82rem',
           fontWeight: 500
         }}>
-          <Clock size={16} />
+          <Clock size={15} />
           <span style={{ textTransform: 'capitalize' }}>{currentDateStr}</span>
         </div>
 
@@ -123,7 +145,7 @@ export default function Topbar() {
             onClick={() => setCurrentView('tables')}
           >
             <PlusCircle size={15} />
-            <span>Ver Mesas</span>
+            <span>Mesas</span>
           </button>
         )}
 
