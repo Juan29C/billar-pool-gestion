@@ -47,6 +47,9 @@ export default function TablesView() {
     return t.status === filter;
   });
 
+  const poolTables = filteredTables.filter(t => t.tableType === 'pool' || t.type?.toLowerCase().includes('pool'));
+  const caromTables = filteredTables.filter(t => t.tableType === 'carom' || t.type?.toLowerCase().includes('bandas'));
+
   const handleOpenStart = (table) => {
     setSelectedTable(table);
     setSelectedRateId(table.rateId || rates[0]?.id);
@@ -108,10 +111,10 @@ export default function TablesView() {
       }}>
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-charcoal)' }}>
-            Monitoreo de Mesas en Sala
+            Mesas de Billar en Sala
           </h2>
           <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)' }}>
-            Supervisa los tiempos de juego en vivo, pedidos y facturación estimada.
+            Distribuido en 6 mesas oficiales: 4 de Pool Americano y 2 de Billar Francés (Tres Bandas).
           </p>
         </div>
 
@@ -152,22 +155,102 @@ export default function TablesView() {
         </div>
       </div>
 
-      {/* Tables Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))',
-        gap: '20px'
-      }}>
-        {filteredTables.map(table => (
-          <TableCard
-            key={table.id}
-            table={table}
-            onOpenStartModal={handleOpenStart}
-            onOpenOrderModal={handleOpenOrder}
-            onOpenCheckoutModal={handleOpenCheckout}
-          />
-        ))}
-      </div>
+      {/* --- SECCIÓN 1: ZONA POOL (4 MESAS) --- */}
+      {poolTables.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '16px',
+            borderBottom: '1px solid var(--border-subtle)',
+            paddingBottom: '8px'
+          }}>
+            <span style={{
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              backgroundColor: '#1E1B19',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '11px',
+              fontWeight: 900
+            }}>
+              8
+            </span>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-charcoal)', margin: 0 }}>
+                Zona de Pool (4 Mesas con Troneras)
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Mesas oficiales de bola 8 / 9 • Tarifa: S/ 15.00/hora
+              </span>
+            </div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+            gap: '20px'
+          }}>
+            {poolTables.map(table => (
+              <TableCard
+                key={table.id}
+                table={table}
+                onOpenStartModal={handleOpenStart}
+                onOpenOrderModal={handleOpenOrder}
+                onOpenCheckoutModal={handleOpenCheckout}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* --- SECCIÓN 2: ZONA BILLAR TRES BANDAS (2 MESAS) --- */}
+      {caromTables.length > 0 && (
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '16px',
+            borderBottom: '1px solid var(--border-subtle)',
+            paddingBottom: '8px'
+          }}>
+            <div style={{ display: 'flex', gap: '3px' }}>
+              <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#FFFFFF', border: '1px solid #777' }} />
+              <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#FFD166' }} />
+              <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#E63946' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-charcoal)', margin: 0 }}>
+                Zona de Billar Francés (2 Mesas Tres Bandas)
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Mesas de carambola sin troneras con diamantes de guía • Tarifa: S/ 20.00/hora
+              </span>
+            </div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+            gap: '20px'
+          }}>
+            {caromTables.map(table => (
+              <TableCard
+                key={table.id}
+                table={table}
+                onOpenStartModal={handleOpenStart}
+                onOpenOrderModal={handleOpenOrder}
+                onOpenCheckoutModal={handleOpenCheckout}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* --- MODAL INICIAR PARTIDA --- */}
       {modalType === 'start' && selectedTable && (
@@ -196,7 +279,7 @@ export default function TablesView() {
                   >
                     {rates.map(rate => (
                       <option key={rate.id} value={rate.id}>
-                        {rate.name} — S/ {rate.pricePerHour.toFixed(2)}/hora (mín. {rate.minMinutes}m)
+                        {rate.name} — S/ {rate.pricePerHour.toFixed(2)}/hora
                       </option>
                     ))}
                   </select>

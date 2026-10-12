@@ -8,6 +8,9 @@ export default function PublicDisplayView() {
   const availableCount = tables.filter(t => t.status === 'available').length;
   const occupiedCount = tables.filter(t => t.status === 'occupied').length;
 
+  const poolTables = tables.filter(t => t.tableType === 'pool' || t.type?.toLowerCase().includes('pool'));
+  const caromTables = tables.filter(t => t.tableType === 'carom' || t.type?.toLowerCase().includes('bandas'));
+
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -19,7 +22,7 @@ export default function PublicDisplayView() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: 'var(--color-charcoal)',
+      backgroundColor: '#231F1D',
       color: '#FFFFFF',
       display: 'flex',
       flexDirection: 'column',
@@ -38,7 +41,7 @@ export default function PublicDisplayView() {
         <button 
           onClick={toggleFullScreen}
           style={{
-            background: 'rgba(255, 255, 255, 0.1)',
+            background: 'rgba(255, 255, 255, 0.12)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             color: '#FFFFFF',
             padding: '8px 14px',
@@ -79,23 +82,23 @@ export default function PublicDisplayView() {
       {/* Header Público */}
       <div style={{
         textAlign: 'center',
-        paddingBottom: '24px',
-        borderBottom: '1px solid var(--surface-dark-soft)',
-        marginBottom: '28px'
+        paddingBottom: '20px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        marginBottom: '24px'
       }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '12px',
-          backgroundColor: 'rgba(156, 86, 75, 0.2)',
-          padding: '8px 20px',
+          gap: '10px',
+          backgroundColor: 'rgba(156, 86, 75, 0.25)',
+          padding: '6px 18px',
           borderRadius: 'var(--radius-full)',
-          marginBottom: '12px'
+          marginBottom: '10px'
         }}>
-          <CircleDot size={20} color="var(--color-terracotta)" />
+          <CircleDot size={18} color="var(--color-terracotta)" />
           <span style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '1.2rem',
+            fontSize: '1.1rem',
             fontWeight: 800,
             letterSpacing: '0.12em',
             textTransform: 'uppercase'
@@ -105,121 +108,194 @@ export default function PublicDisplayView() {
         </div>
 
         <h1 style={{
-          fontSize: '2.4rem',
+          fontSize: '2.2rem',
           fontWeight: 800,
           color: '#FFFFFF',
-          marginBottom: '8px'
+          marginBottom: '6px',
+          letterSpacing: '0.02em'
         }}>
-          DISPONIBILIDAD DE MESAS
+          ESTADO DE MESAS EN SALA
         </h1>
 
         {/* Semáforo Global */}
         <div style={{
           display: 'inline-flex',
-          gap: '24px',
-          fontSize: '1rem',
-          fontWeight: 600,
-          color: 'var(--text-on-dark-muted)'
+          alignItems: 'center',
+          gap: '20px',
+          fontSize: '0.96rem',
+          fontWeight: 700
         }}>
-          <span style={{ color: 'var(--status-available)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--status-available)' }} />
-            {availableCount} MESAS DISPONIBLES
+          <span style={{ color: '#54D18C', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2E7D52' }} />
+            {availableCount} MESAS LIBRES
           </span>
-          <span>•</span>
-          <span style={{ color: 'var(--status-occupied)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--status-occupied)' }} className="pulse-indicator" />
+          <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+          <span style={{ color: '#F5B041', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#C87A18' }} className="pulse-indicator" />
             {occupiedCount} EN JUEGO
           </span>
         </div>
       </div>
 
-      {/* Grid de Mesas para Pantalla Vertical (Grandes y Legibles) */}
+      {/* Grid de las 6 Mesas con Aspecto de Mesa Física Real */}
       <div style={{
         flex: 1,
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: '20px',
         alignContent: 'start'
       }}>
         {tables.map(table => {
           const isFree = table.status === 'available';
           const isPlay = table.status === 'occupied';
-          const isMaint = table.status === 'maintenance';
+          const isPool = table.tableType === 'pool' || table.type?.toLowerCase().includes('pool');
           const elapsed = getTableElapsedSeconds(table);
+
+          // Paño de fondo
+          const clothBg = isFree
+            ? 'linear-gradient(145deg, #1A2E22 0%, #112017 100%)' // Paño verde en reposo
+            : 'linear-gradient(145deg, #183C2C 0%, #0E261C 100%)'; // Paño verde iluminado
 
           return (
             <div 
               key={table.id}
               style={{
-                backgroundColor: isFree ? 'rgba(46, 125, 82, 0.12)' : isPlay ? 'rgba(200, 122, 24, 0.12)' : 'var(--surface-dark-soft)',
-                border: `2px solid ${isFree ? 'var(--status-available)' : isPlay ? 'var(--status-occupied)' : 'var(--border-dark)'}`,
-                borderRadius: 'var(--radius-xl)',
-                padding: '24px 20px',
+                // Mueble / Banda de mesa de billar
+                backgroundColor: '#2A2421',
+                backgroundImage: 'linear-gradient(180deg, #38302C 0%, #201B19 100%)',
+                border: '3px solid #483E38',
+                borderRadius: '18px',
+                padding: '12px',
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                minHeight: '190px',
-                textAlign: 'center',
-                boxShadow: isPlay ? '0 8px 24px rgba(200, 122, 24, 0.15)' : 'none'
+                minHeight: '220px',
+                boxShadow: isPlay ? '0 10px 24px rgba(0,0,0,0.5), 0 0 0 2px #C87A18' : '0 6px 16px rgba(0,0,0,0.35)'
               }}
             >
-              <div>
-                <div style={{
-                  fontSize: '0.82rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: 'var(--text-on-dark-muted)',
-                  fontWeight: 700,
-                  marginBottom: '4px'
-                }}>
-                  {table.type}
+              {/* Banda Superior con Nombre de Mesa */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 6px 8px',
+                borderBottom: '1px solid rgba(255,255,255,0.08)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {isPool ? (
+                    <span style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      backgroundColor: '#111',
+                      border: '1px solid #555',
+                      color: '#fff',
+                      fontSize: '9px',
+                      fontWeight: 900,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      8
+                    </span>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '2px' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#FFF' }} />
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#FFD166' }} />
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#E63946' }} />
+                    </div>
+                  )}
+
+                  <h2 style={{
+                    fontSize: '1.45rem',
+                    fontWeight: 800,
+                    color: '#FFFFFF',
+                    margin: 0
+                  }}>
+                    {table.name}
+                  </h2>
                 </div>
-                <h2 style={{
-                  fontSize: '2.1rem',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  margin: 0
+
+                <span style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: '#C4B7AF',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em'
                 }}>
-                  {table.name}
-                </h2>
+                  {isPool ? 'Pool (6 Troneras)' : 'Tres Bandas'}
+                </span>
               </div>
 
-              {/* Estado y Cronómetro */}
-              <div style={{ margin: '14px 0' }}>
-                {isFree && (
-                  <div style={{
-                    display: 'inline-block',
-                    padding: '8px 24px',
-                    borderRadius: 'var(--radius-full)',
-                    backgroundColor: 'var(--status-available)',
-                    color: '#FFFFFF',
-                    fontWeight: 800,
-                    fontSize: '1.25rem',
-                    letterSpacing: '0.04em'
-                  }}>
-                    DISPONIBLE
+              {/* El Paño Interior de la Mesa */}
+              <div style={{
+                margin: '8px 0',
+                borderRadius: '10px',
+                background: clothBg,
+                border: '2px solid #141110',
+                position: 'relative',
+                padding: '20px 14px',
+                textAlign: 'center',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                boxShadow: 'inset 0 3px 12px rgba(0,0,0,0.6)'
+              }}>
+                {/* Troneras en esquinas para Pool */}
+                {isPool && (
+                  <>
+                    <div style={{ position: 'absolute', top: -3, left: -3, width: 14, height: 14, borderRadius: '50%', backgroundColor: '#090807' }} />
+                    <div style={{ position: 'absolute', top: -3, right: -3, width: 14, height: 14, borderRadius: '50%', backgroundColor: '#090807' }} />
+                    <div style={{ position: 'absolute', bottom: -3, left: -3, width: 14, height: 14, borderRadius: '50%', backgroundColor: '#090807' }} />
+                    <div style={{ position: 'absolute', bottom: -3, right: -3, width: 14, height: 14, borderRadius: '50%', backgroundColor: '#090807' }} />
+                  </>
+                )}
+
+                {/* Diamantes para Tres Bandas */}
+                {!isPool && (
+                  <div style={{ position: 'absolute', top: 3, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '24px' }}>
+                    <span style={{ width: 4, height: 4, transform: 'rotate(45deg)', backgroundColor: '#EADBC8', display: 'inline-block', opacity: 0.8 }} />
+                    <span style={{ width: 4, height: 4, transform: 'rotate(45deg)', backgroundColor: '#EADBC8', display: 'inline-block', opacity: 0.8 }} />
                   </div>
                 )}
 
-                {isPlay && (
+                {isFree ? (
                   <div>
                     <div style={{
                       display: 'inline-block',
-                      padding: '4px 16px',
+                      padding: '8px 24px',
                       borderRadius: 'var(--radius-full)',
-                      backgroundColor: 'var(--status-occupied)',
-                      color: '#FFFFFF',
-                      fontWeight: 700,
-                      fontSize: '0.82rem',
-                      letterSpacing: '0.04em',
-                      marginBottom: '6px'
+                      backgroundColor: 'rgba(46, 125, 82, 0.35)',
+                      border: '1.5px solid #2E7D52',
+                      color: '#54D18C',
+                      fontWeight: 800,
+                      fontSize: '1.25rem',
+                      letterSpacing: '0.06em'
                     }}>
-                      EN JUEGO
+                      DISPONIBLE
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: '#97AEA1', marginTop: '6px' }}>
+                      Tarifa: S/ {table.pricePerHour.toFixed(2)}/h
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{
+                      fontSize: '0.72rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: '#F5B041',
+                      fontWeight: 800,
+                      marginBottom: '4px'
+                    }}>
+                      PARTIDA EN CURSO
                     </div>
                     <div 
                       className="tabular-nums font-display"
                       style={{
-                        fontSize: '2.2rem',
+                        fontSize: '2.4rem',
                         fontWeight: 800,
                         color: '#FFFFFF',
                         letterSpacing: '0.04em'
@@ -229,29 +305,16 @@ export default function PublicDisplayView() {
                     </div>
                   </div>
                 )}
-
-                {isMaint && (
-                  <div style={{
-                    display: 'inline-block',
-                    padding: '6px 18px',
-                    borderRadius: 'var(--radius-full)',
-                    backgroundColor: 'var(--surface-dark-card)',
-                    color: 'var(--text-on-dark-muted)',
-                    fontWeight: 700,
-                    fontSize: '1rem'
-                  }}>
-                    MANTENIMIENTO
-                  </div>
-                )}
               </div>
 
+              {/* Pie de Banda */}
               <div style={{
-                fontSize: '0.78rem',
-                color: 'var(--text-on-dark-subtle)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                paddingTop: '8px'
+                textAlign: 'center',
+                fontSize: '0.75rem',
+                color: '#9E928A',
+                paddingTop: '4px'
               }}>
-                Tarifa oficial: S/ {table.pricePerHour.toFixed(2)} / hora
+                {isPlay ? `Inició a las ${new Date(table.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Acércate a barra para abrir mesa'}
               </div>
             </div>
           );
@@ -261,13 +324,13 @@ export default function PublicDisplayView() {
       {/* Footer Público */}
       <div style={{
         textAlign: 'center',
-        paddingTop: '20px',
-        borderTop: '1px solid var(--surface-dark-soft)',
-        color: 'var(--text-on-dark-subtle)',
+        paddingTop: '16px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        color: '#9E928A',
         fontSize: '0.85rem',
-        marginTop: '24px'
+        marginTop: '20px'
       }}>
-        Solicita tu mesa en recepción o barra • Consumos y piqueos disponibles
+        Ambiente climatizado • Servicio de piqueos, cervezas y bebidas a la mesa • Billar Club
       </div>
     </div>
   );

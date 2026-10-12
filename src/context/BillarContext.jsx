@@ -4,10 +4,20 @@ import { INITIAL_TABLES, INITIAL_PRODUCTS, INITIAL_RATES, INITIAL_SHIFT, INITIAL
 const BillarContext = createContext(null);
 
 export function BillarProvider({ children }) {
-  // Estado de mesas
+  // Estado de mesas (6 mesas exactas: 4 de Pool y 2 de Billar Francés)
   const [tables, setTables] = useState(() => {
-    const saved = localStorage.getItem('billar_tables');
-    return saved ? JSON.parse(saved) : INITIAL_TABLES;
+    try {
+      const saved = localStorage.getItem('billar_tables');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === 6) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return INITIAL_TABLES;
   });
 
   // Estado de productos de inventario

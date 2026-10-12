@@ -1,44 +1,48 @@
-// Datos de demostración iniciales para Billar Club & Lounge
+// Datos de demostración oficiales para Billar Club & Lounge
+// Configuración exacta del local: 6 Mesas (4 de Pool y 2 de Billar Francés / Tres Bandas)
 
 export const INITIAL_RATES = [
-  { id: 'rate_standard', name: 'Pool Estándar', pricePerHour: 15.00, minMinutes: 15 },
-  { id: 'rate_carom', name: 'Tres Bandas Profesional', pricePerHour: 20.00, minMinutes: 15 },
-  { id: 'rate_vip', name: 'Mesa VIP Snooker', pricePerHour: 25.00, minMinutes: 30 }
+  { id: 'rate_pool', name: 'Pool Estándar', pricePerHour: 15.00, minMinutes: 15 },
+  { id: 'rate_carom', name: 'Tres Bandas Profesional', pricePerHour: 20.00, minMinutes: 15 }
 ];
 
 export const INITIAL_TABLES = [
+  // --- 4 MESAS DE POOL (Con 6 Troneras) ---
   {
     id: 1,
     name: 'Mesa 01',
+    tableType: 'pool', // 'pool' | 'carom'
     type: 'Pool Estándar',
-    rateId: 'rate_standard',
+    rateId: 'rate_pool',
     pricePerHour: 15.00,
-    status: 'occupied', // 'available' | 'occupied' | 'pending' | 'maintenance'
-    startTime: new Date(Date.now() - 48 * 60 * 1000).toISOString(), // 48 mins ago
-    players: 'Grupo Juan',
+    status: 'occupied',
+    startTime: new Date(Date.now() - 52 * 60 * 1000).toISOString(), // 52 mins
+    players: 'Grupo Juan & Amigos',
     orders: [
-      { id: 'ord_1', name: 'Cerveza Cusqueña Trigo', qty: 2, price: 10.00 }
+      { id: 'prod_1', name: 'Cerveza Cusqueña Trigo 330ml', qty: 2, price: 10.00 }
     ]
   },
   {
     id: 2,
     name: 'Mesa 02',
+    tableType: 'pool',
     type: 'Pool Estándar',
-    rateId: 'rate_standard',
+    rateId: 'rate_pool',
     pricePerHour: 15.00,
     status: 'occupied',
-    startTime: new Date(Date.now() - 85 * 60 * 1000).toISOString(), // 1h 25m ago
-    players: 'Ernesto & Amigos',
+    startTime: new Date(Date.now() - 85 * 60 * 1000).toISOString(), // 1h 25m
+    players: 'Ernesto Torres',
     orders: [
-      { id: 'ord_2', name: 'Gaseosa Coca Cola 500ml', qty: 2, price: 4.50 },
-      { id: 'ord_3', name: 'Porción Tequeños Clásicos', qty: 1, price: 18.00 }
+      { id: 'prod_4', name: 'Coca Cola Sin Azúcar 500ml', qty: 2, price: 4.50 },
+      { id: 'prod_8', name: 'Porción Tequeños de Queso', qty: 1, price: 18.00 }
     ]
   },
   {
     id: 3,
     name: 'Mesa 03',
+    tableType: 'pool',
     type: 'Pool Estándar',
-    rateId: 'rate_standard',
+    rateId: 'rate_pool',
     pricePerHour: 15.00,
     status: 'available',
     startTime: null,
@@ -48,57 +52,42 @@ export const INITIAL_TABLES = [
   {
     id: 4,
     name: 'Mesa 04',
+    tableType: 'pool',
     type: 'Pool Estándar',
-    rateId: 'rate_standard',
+    rateId: 'rate_pool',
     pricePerHour: 15.00,
-    status: 'pending', // Esperando pago
-    startTime: new Date(Date.now() - 62 * 60 * 1000).toISOString(),
+    status: 'pending', // Por cobrar
+    startTime: new Date(Date.now() - 65 * 60 * 1000).toISOString(),
     endTime: new Date().toISOString(),
-    players: 'Mesa Torres',
+    players: 'Familia Paredes',
     orders: [
-      { id: 'ord_4', name: 'Red Bull Energy 250ml', qty: 2, price: 12.00 }
+      { id: 'prod_7', name: 'Red Bull Energy Drink', qty: 2, price: 12.00 }
     ]
   },
+
+  // --- 2 MESAS DE BILLAR FRANCÉS / TRES BANDAS (Sin Troneras, Con Diamantes) ---
   {
     id: 5,
     name: 'Mesa 05',
+    tableType: 'carom',
     type: 'Tres Bandas Profesional',
     rateId: 'rate_carom',
     pricePerHour: 20.00,
     status: 'occupied',
-    startTime: new Date(Date.now() - 25 * 60 * 1000).toISOString(), // 25 mins ago
-    players: 'Master Luis R.',
-    orders: []
+    startTime: new Date(Date.now() - 34 * 60 * 1000).toISOString(), // 34 mins
+    players: 'Prof. Luis Ramos',
+    orders: [
+      { id: 'prod_6', name: 'Agua San Mateo con Gas', qty: 1, price: 3.50 }
+    ]
   },
   {
     id: 6,
     name: 'Mesa 06',
+    tableType: 'carom',
     type: 'Tres Bandas Profesional',
     rateId: 'rate_carom',
     pricePerHour: 20.00,
     status: 'available',
-    startTime: null,
-    players: '',
-    orders: []
-  },
-  {
-    id: 7,
-    name: 'Mesa VIP 07',
-    type: 'Mesa VIP Snooker',
-    rateId: 'rate_vip',
-    pricePerHour: 25.00,
-    status: 'available',
-    startTime: null,
-    players: '',
-    orders: []
-  },
-  {
-    id: 8,
-    name: 'Mesa 08',
-    type: 'Pool Estándar',
-    rateId: 'rate_standard',
-    pricePerHour: 15.00,
-    status: 'maintenance',
     startTime: null,
     players: '',
     orders: []
@@ -135,7 +124,7 @@ export const INITIAL_PRODUCTS = [
     category: 'Cervezas',
     price: 10.50,
     cost: 5.80,
-    stock: 6, // Stock bajo
+    stock: 6,
     minStock: 10,
     unit: 'Botella'
   },
@@ -168,7 +157,7 @@ export const INITIAL_PRODUCTS = [
     category: 'Bebidas Sin Alcohol',
     price: 3.50,
     cost: 1.50,
-    stock: 4, // Stock bajo
+    stock: 4,
     minStock: 10,
     unit: 'Botella'
   },
@@ -231,14 +220,14 @@ export const INITIAL_PRODUCTS = [
 
 export const INITIAL_SHIFT = {
   isOpen: true,
-  openedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 horas abierto
+  openedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
   cashierName: 'Carlos Mendoza',
   initialCash: 250.00,
   cashSales: 185.00,
   yapeSales: 140.00,
   plinSales: 45.00,
   cardSales: 95.00,
-  expenses: 30.00 // compra hielo
+  expenses: 30.00
 };
 
 export const INITIAL_TRANSACTIONS = [
@@ -246,7 +235,7 @@ export const INITIAL_TRANSACTIONS = [
     id: 'TRX-1049',
     time: 'Hace 15 min',
     type: 'Mesa Finalizada',
-    description: 'Mesa 03 (Pool Estándar 1h 15m) + 2 Cusqueña Trigo',
+    description: 'Mesa 01 (Pool Estándar 1h 15m) + 2 Cusqueña Trigo',
     method: 'Yape',
     amount: 38.75,
     status: 'Completado'
@@ -264,18 +253,9 @@ export const INITIAL_TRANSACTIONS = [
     id: 'TRX-1047',
     time: 'Hace 1 hora',
     type: 'Mesa Finalizada',
-    description: 'Mesa 05 (Tres Bandas 2h 00m)',
+    description: 'Mesa 05 (Tres Bandas 1h 30m)',
     method: 'Plin',
-    amount: 40.00,
-    status: 'Completado'
-  },
-  {
-    id: 'TRX-1046',
-    time: 'Hace 2 horas',
-    type: 'Venta POS',
-    description: '4 Corona Extra + 1 Mix Frutos Secos',
-    method: 'Tarjeta',
-    amount: 51.00,
+    amount: 30.00,
     status: 'Completado'
   }
 ];
