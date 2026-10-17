@@ -30,7 +30,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
   }).format(new Date());
 
   return (
-    <header style={{
+    <header className="topbar-header" style={{
       minHeight: 'var(--topbar-height)',
       backgroundColor: 'var(--surface-card)',
       borderBottom: '1px solid var(--border-subtle)',
@@ -50,17 +50,10 @@ export default function Topbar({ onToggleMobileSidebar }) {
         <button
           type="button"
           onClick={onToggleMobileSidebar}
-          aria-label="Abrir menú"
-          className="btn-ghost mobile-menu-btn"
-          style={{
-            padding: '8px',
-            borderRadius: '8px',
-            border: '1px solid var(--border-subtle)',
-            cursor: 'pointer',
-            display: 'none' // Se muestra vía CSS en media query
-          }}
+          aria-label="Abrir menú de navegación"
+          className="mobile-menu-btn"
         >
-          <Menu size={20} color="var(--color-charcoal)" />
+          <Menu size={22} />
         </button>
 
         <div>

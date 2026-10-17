@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BillarProvider, useBillar } from './context/BillarContext';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -17,6 +17,18 @@ import './styles/components.css';
 function MainLayout() {
   const { currentView } = useBillar();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Prevenir scroll en el fondo cuando el menú móvil está desplegado
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileSidebarOpen]);
 
   // Si está en la vista pública de pantalla (ej. TV o quiosco vertical), no mostramos la barra administrativa
   if (currentView === 'public') {
@@ -52,13 +64,8 @@ function MainLayout() {
       {mobileSidebarOpen && (
         <div 
           onClick={() => setMobileSidebarOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 90,
-            backdropFilter: 'blur(2px)'
-          }}
+          className="sidebar-mobile-backdrop"
+          aria-label="Cerrar menú"
         />
       )}
 
