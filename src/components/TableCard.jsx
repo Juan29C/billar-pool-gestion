@@ -2,7 +2,7 @@ import React from 'react';
 import { Play, Coffee, CheckCircle2, Clock, Users, Wrench } from 'lucide-react';
 import { useBillar } from '../context/BillarContext';
 
-export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, onOpenCheckoutModal }) {
+export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, onOpenCheckoutModal, onOpenAdjustTimeModal }) {
   const { 
     getTableElapsedSeconds, 
     getTableTimeCost, 
@@ -247,10 +247,33 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '4px'
+              gap: '6px'
             }}>
               <Clock size={12} />
               <span>Inició: {new Date(table.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              {onOpenAdjustTimeModal && isOccupied && (
+                <button
+                  type="button"
+                  title="Ajustar tiempo del cronómetro"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenAdjustTimeModal(table);
+                  }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF',
+                    borderRadius: '4px',
+                    padding: '1px 6px',
+                    fontSize: '0.66rem',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    lineHeight: 1.2
+                  }}
+                >
+                  Ajustar
+                </button>
+              )}
             </div>
           )}
         </div>

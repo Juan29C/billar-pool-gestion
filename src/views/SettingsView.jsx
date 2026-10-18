@@ -3,9 +3,13 @@ import { Settings, Save, Check, ShieldCheck, DollarSign, Clock, Store } from 'lu
 import { useBillar } from '../context/BillarContext';
 
 export default function SettingsView() {
-  const { rates } = useBillar();
+  const { rates, updateRate } = useBillar();
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [editableRates, setEditableRates] = useState(() =>
+    rates.reduce((acc, r) => ({ ...acc, [r.id]: r.pricePerHour }), {})
+  );
+
   const [localSettings, setLocalSettings] = useState({
     businessName: 'Club de Billar & Lounge Master 8',
     ruc: '20601234567',
@@ -17,6 +21,9 @@ export default function SettingsView() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    Object.entries(editableRates).forEach(([rateId, price]) => {
+      updateRate(rateId, price);
+    });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2500);
   };
@@ -128,17 +135,24 @@ export default function SettingsView() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Precio/Hora:</span>
-                  <div className="font-display tabular-nums" style={{
-                    padding: '6px 12px',
-                    backgroundColor: 'var(--surface-card)',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--border-subtle)',
-                    fontWeight: 800,
-                    color: 'var(--color-terracotta)'
-                  }}>
-                    S/ {rate.pricePerHour.toFixed(2)}
-                  </div>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Precio/Hora: S/</span>
+                  <input
+                    type="number"
+                    step="0.50"
+                    min="1"
+                    className="input-field"
+                    style={{
+                      width: '100px',
+                      padding: '6px 10px',
+                      fontWeight: 800,
+                      color: 'var(--color-terracotta)',
+                      textAlign: 'center',
+                      fontSize: '1rem',
+                      marginBottom: 0
+                    }}
+                    value={editableRates[rate.id] ?? rate.pricePerHour}
+                    onChange={e => setEditableRates({ ...editableRates, [rate.id]: e.target.value })}
+                  />
                 </div>
               </div>
             ))}

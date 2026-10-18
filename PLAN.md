@@ -46,14 +46,18 @@ Construir los componentes atómicos y moleculares para evitar duplicidad de esti
 
 ---
 
-### Fase 3: Módulo de Mesas (Núcleo Operativo Físico) — [COMPLETADA Y VERIFICADA]
+### Fase 3: Módulo de Mesas (Núcleo Operativo Físico) — [COMPLETADA Y POTENCIADA]
 * **Grid de Mesas Adaptativo (Laptop vs. Monitor)**:
   * Distribución oficial del local: 6 mesas físicas (4 de Pool con 6 troneras y 2 de Billar Francés con diamantes).
   * Cronómetro visual en vivo por segundo (horas, minutos y segundos).
   * Tarifa por hora aplicada y cálculo dinámico de importe en tiempo real (`S/ XX.XX`).
+* **Control y Calibración de Tiempos**:
+  * Selector de momento de inicio al abrir mesa: En tiempo real (00:00:00) o retroactivo (hace 15, 30, 45, 60 min o personalizado).
+  * Modal de ajuste de tiempo en mesas activas (`Modal 4`) para calibrar minutos transcurridos directamente.
+  * Botón de restauración limpia de tiempos de prueba (`Restablecer Tiempos Demo`) con confirmación segura para sanear cronómetros acumulados en el navegador.
 * **Modales Interactivos Temáticos de Alta Visibilidad**:
-  * Modal *Iniciar Partida*: Selección de tarifa y notas con imagotipo de billar (ancho optimizado 600px).
-  * Modal *Agregar Consumo*: Rediseño espacioso a 2 columnas (1020px), buscador limpio en tiempo real, chips de categoría y catálogo con scroll amplio (hasta 6 productos a la vista).
+  * Modal *Iniciar Partida*: Selección de tarifa, cliente y selector de tiempo de inicio (ancho optimizado 600px).
+  * Modal *Añadir Consumo (Comanda Multi-Producto)*: Rediseño espacioso a 2 columnas (1020px), catálogo ágil en columna izquierda con selector de cantidades y columna derecha con **canasta/comanda multi-producto**, permitiendo cargar múltiples cervezas, gaseosas y piqueos en una sola acción con actualización automática de stock.
   * Modal *Liquidación y Cobro*: Voucher contable ampliado (700px) con líneas punteadas, desglose por conceptos y selector simétrico de método de pago.
   * Centrado absoluto en viewport vía `createPortal(..., document.body)` inmune a transforms y seguro contra recortes de barra de tareas.
 
@@ -92,14 +96,15 @@ Construir los componentes atómicos y moleculares para evitar duplicidad de esti
 
 ---
 
-### Fase 6: Historial de Operaciones, Reportes y Configuración — [PRÓXIMA A EJECUTAR]
+### Fase 6: Historial de Operaciones, Reportes y Configuración — [FUNCIONAL CON TARIFAS EDITABLES]
 * **Historial de Operaciones**:
-  * Filtros por fecha, tipo de operación (Partida, Venta POS) y método de pago.
-  * Modal de detalle con desglose de la transacción.
+  * Filtros en tiempo real por búsqueda de ID, detalle y método de pago (Efectivo, Yape, Plin, Tarjeta).
+  * Simulación de exportación de datos.
 * **Reportes**:
-  * Gráficas estilizadas de horas con mayor ocupación, productos más vendidos y distribución de ingresos.
+  * Gráficas de ocupación por horas y métricas de productos más vendidos y facturación.
 * **Configuración**:
-  * Formulario visual para tarifas por hora/minuto, datos del establecimiento y reglas de redondeo.
+  * Formulario con **tarifas por hora editables para Pool y Tres Bandas**, conectadas al estado global para actualizar los cobros de mesa al guardar cambios.
+  * Configuración de datos comerciales del establecimiento y parámetros de redondeo.
 
 ---
 

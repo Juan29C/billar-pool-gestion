@@ -35,7 +35,7 @@ export default function ProductSearchSelect({
   const filteredProducts = products.filter(p => {
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+      p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -105,10 +105,10 @@ export default function ProductSearchSelect({
           <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Elegir artículo...</span>
         )}
 
-        <ChevronDown 
-          size={18} 
-          color="var(--text-muted)" 
-          style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease', marginLeft: '8px' }} 
+        <ChevronDown
+          size={18}
+          color="var(--text-muted)"
+          style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease', marginLeft: '8px' }}
         />
       </div>
 

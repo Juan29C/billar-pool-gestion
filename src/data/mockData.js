@@ -6,7 +6,7 @@ export const INITIAL_RATES = [
   { id: 'rate_carom', name: 'Tres Bandas Profesional', pricePerHour: 20.00, minMinutes: 15 }
 ];
 
-export const INITIAL_TABLES = [
+export const getFreshInitialTables = () => [
   // --- 4 MESAS DE POOL (Con 6 Troneras) ---
   {
     id: 1,
@@ -93,6 +93,8 @@ export const INITIAL_TABLES = [
     orders: []
   }
 ];
+
+export const INITIAL_TABLES = getFreshInitialTables();
 
 export const INITIAL_PRODUCTS = [
   {

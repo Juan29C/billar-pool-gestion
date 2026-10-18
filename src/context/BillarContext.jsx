@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_TABLES, INITIAL_PRODUCTS, INITIAL_RATES, INITIAL_SHIFT, INITIAL_TRANSACTIONS } from '../data/mockData';
+import { 
+  INITIAL_TABLES, 
+  INITIAL_PRODUCTS, 
+  INITIAL_RATES, 
+  INITIAL_SHIFT, 
+  INITIAL_TRANSACTIONS,
+  getFreshInitialTables 
+} from '../data/mockData';
 
 const BillarContext = createContext(null);
 
@@ -11,13 +18,24 @@ export function BillarProvider({ children }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length === 6) {
-          return parsed;
+          // Si los datos guardados en el navegador tienen tiempos de hace más de 24 horas (ej. 147 horas),
+          // regenerar automáticamente con tiempos frescos de demostración (30-60 mins).
+          const hasStaleDates = parsed.some(t => {
+            if (t.startTime && t.status === 'occupied') {
+              const diffHours = (Date.now() - new Date(t.startTime).getTime()) / (1000 * 3600);
+              return diffHours > 24;
+            }
+            return false;
+          });
+          if (!hasStaleDates) {
+            return parsed;
+          }
         }
       }
     } catch (e) {
       // ignore
     }
-    return INITIAL_TABLES;
+    return getFreshInitialTables();
   });
 
   // Estado de productos de inventario
@@ -121,8 +139,13 @@ export function BillarProvider({ children }) {
   };
 
   // Acciones sobre mesas
-  const startTable = (tableId, rateId, playersName = '') => {
+  const startTable = (tableId, rateId, playersName = '', minutesAgo = 0) => {
     const rate = rates.find(r => r.id === rateId) || rates[0];
+    const mins = Math.max(0, parseInt(minutesAgo, 10) || 0);
+    const startTimestamp = mins > 0
+      ? new Date(Date.now() - mins * 60 * 1000).toISOString()
+      : new Date().toISOString();
+
     setTables(prev => prev.map(t => {
       if (t.id === tableId) {
         return {
@@ -131,7 +154,7 @@ export function BillarProvider({ children }) {
           rateId: rate.id,
           type: rate.name,
           pricePerHour: rate.pricePerHour,
-          startTime: new Date().toISOString(),
+          startTime: startTimestamp,
           endTime: null,
           players: playersName || 'Jugador General',
           orders: []
@@ -141,28 +164,70 @@ export function BillarProvider({ children }) {
     }));
   };
 
-  const addOrderToTable = (tableId, product, qty = 1) => {
+  const adjustTableTime = (tableId, minutesAgo) => {
+    const mins = Math.max(0, parseInt(minutesAgo, 10) || 0);
+    const newStartTime = new Date(Date.now() - mins * 60 * 1000).toISOString();
     setTables(prev => prev.map(t => {
       if (t.id === tableId) {
-        const existing = t.orders.find(o => o.id === product.id);
-        let updatedOrders;
-        if (existing) {
-          updatedOrders = t.orders.map(o => o.id === product.id ? { ...o, qty: o.qty + qty } : o);
-        } else {
-          updatedOrders = [...t.orders, { id: product.id, name: product.name, qty, price: product.price }];
-        }
+        return { ...t, startTime: newStartTime };
+      }
+      return t;
+    }));
+  };
+
+  // Cargar múltiples productos a la comanda de la mesa en una sola operación
+  const addOrdersToTable = (tableId, items = []) => {
+    if (!items || !items.length) return;
+
+    setTables(prev => prev.map(t => {
+      if (t.id === tableId) {
+        let updatedOrders = [...t.orders];
+        items.forEach(item => {
+          const qty = Number(item.qty) || 1;
+          const existing = updatedOrders.find(o => o.id === item.id);
+          if (existing) {
+            updatedOrders = updatedOrders.map(o => o.id === item.id ? { ...o, qty: o.qty + qty } : o);
+          } else {
+            updatedOrders.push({
+              id: item.id,
+              name: item.name,
+              qty: qty,
+              price: item.price
+            });
+          }
+        });
         return { ...t, orders: updatedOrders };
       }
       return t;
     }));
 
-    // Descontar stock
+    // Descontar inventario de cada producto despachado
     setProducts(prev => prev.map(p => {
-      if (p.id === product.id) {
-        return { ...p, stock: Math.max(0, p.stock - qty) };
+      const match = items.find(i => i.id === p.id);
+      if (match) {
+        return { ...p, stock: Math.max(0, p.stock - (Number(match.qty) || 1)) };
       }
       return p;
     }));
+  };
+
+  const addOrderToTable = (tableId, product, qty = 1) => {
+    addOrdersToTable(tableId, [{ id: product.id, name: product.name, price: product.price, qty: Number(qty) }]);
+  };
+
+  // Reiniciar datos de demostración con cronómetros frescos y coherentes
+  const resetDemoData = () => {
+    const freshTables = getFreshInitialTables();
+    setTables(freshTables);
+    localStorage.setItem('billar_tables', JSON.stringify(freshTables));
+  };
+
+  // Actualizar tarifa y reflejarla en mesas activas
+  const updateRate = (rateId, newPricePerHour) => {
+    const price = parseFloat(newPricePerHour);
+    if (isNaN(price) || price <= 0) return;
+    setRates(prev => prev.map(r => r.id === rateId ? { ...r, pricePerHour: price } : r));
+    setTables(prev => prev.map(t => t.rateId === rateId ? { ...t, pricePerHour: price } : t));
   };
 
   const stopTable = (tableId) => {
@@ -455,7 +520,11 @@ export function BillarProvider({ children }) {
       formatTime,
       startTable,
       stopTable,
+      adjustTableTime,
       addOrderToTable,
+      addOrdersToTable,
+      resetDemoData,
+      updateRate,
       checkoutTable,
       addToCart,
       updateCartQty,
