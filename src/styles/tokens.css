@@ -1,12 +1,19 @@
 /* ==========================================================================
-   DESIGN SYSTEM TOKENS — BILLAR CLUB & LOUNGE
-   Paleta Base: Carbón Cálido (#2B2725), Terracota (#9C564B), Blanco (#FFFFFF)
+   DESIGN SYSTEM TOKENS — CLUB LIVERPOOL (Billiards & Lounge)
+   Tríada Oficial: Carbón Profundo (#1A1817), Azul Tournament (#008ED6), Neón Ámbar (#F5A623)
    ========================================================================== */
 
 :root {
-  /* --- Tríada Fundamental de Marca --- */
-  --color-charcoal: #2B2725;
-  --color-terracotta: #9C564B;
+  /* --- Tríada Fundamental de Marca Club LIVERPOOL --- */
+  --color-charcoal: #1A1817;
+  --color-charcoal-soft: #231F1D;
+  --color-liverpool-blue: #008ED6;
+  --color-liverpool-blue-dark: #006CA8;
+  --color-liverpool-blue-light: #38B6FF;
+  --color-liverpool-amber: #F5A623;
+  --color-liverpool-amber-hover: #E09214;
+  --color-terracotta: #F5A623; /* Acento primario mapeado al Neón Ámbar del letrero */
+  --color-terracotta-accent: #C85A4B; /* Terracota de advertencia/cobro */
   --color-white: #FFFFFF;
 
   /* --- Superficies y Fondos --- */
@@ -17,47 +24,49 @@
   --surface-active: #EBE3DF;
 
   /* --- Superficies Oscuras (Sidebar, Modales oscuros, Pantalla TV) --- */
-  --surface-dark: #2B2725;
-  --surface-dark-soft: #38322F;
-  --surface-dark-card: #322D2A;
-  --surface-dark-hover: #423B37;
-  --surface-dark-active: #4F4742;
+  --surface-dark: #1A1817;
+  --surface-dark-soft: #262220;
+  --surface-dark-card: #201C1A;
+  --surface-dark-hover: #322C29;
+  --surface-dark-active: #403834;
 
-  /* --- Acentos y Variaciones Terracota --- */
-  --terracotta-hover: #86463C;
-  --terracotta-active: #723A31;
-  --terracotta-subtle: #F9ECE9;
-  --terracotta-border: #E8CAC4;
-  --terracotta-glow: rgba(156, 86, 75, 0.25);
+  /* --- Acentos y Variaciones Neón Ámbar LIVERPOOL --- */
+  --terracotta-hover: #E09214;
+  --terracotta-active: #C87E0A;
+  --terracotta-subtle: #FDF4E7;
+  --terracotta-border: #F8DAA9;
+  --terracotta-glow: rgba(245, 166, 35, 0.35);
+  --neon-amber-glow: 0 0 16px rgba(245, 166, 35, 0.45);
+  --neon-blue-glow: 0 0 16px rgba(0, 142, 214, 0.4);
 
   /* --- Tipografía y Contraste de Texto --- */
-  --text-primary: #2B2725;
+  --text-primary: #1A1817;
   --text-secondary: #574F4A;
   --text-muted: #827771;
   --text-disabled: #ADA39D;
   --text-on-dark: #FFFFFF;
-  --text-on-dark-muted: #BDB4AE;
-  --text-on-dark-subtle: #877E78;
+  --text-on-dark-muted: #C4BBB5;
+  --text-on-dark-subtle: #8E837D;
 
   /* --- Bordes y Separadores --- */
   --border-subtle: #E8E2DC;
   --border-medium: #D5CCC4;
-  --border-dark: #453E3A;
-  --border-focus: #9C564B;
+  --border-dark: #38322F;
+  --border-focus: #F5A623;
 
-  /* --- Estados Semánticos Calibrados --- */
-  /* Disponible (Verde Esmeralda Calibrado) */
-  --status-available: #2E7D52;
-  --status-available-bg: #EAF5EE;
-  --status-available-border: #B7E2C7;
+  /* --- Estados Semánticos Calibrados Club LIVERPOOL --- */
+  /* Disponible (Azul Paño Tournament LIVERPOOL) */
+  --status-available: #008ED6;
+  --status-available-bg: #E8F4FC;
+  --status-available-border: #BCE2FA;
 
-  /* Ocupada / En Juego (Ámbar Cálido) */
-  --status-occupied: #C87A18;
+  /* Ocupada / En Juego (Neón Ámbar LIVERPOOL) */
+  --status-occupied: #F5A623;
   --status-occupied-bg: #FDF4E7;
   --status-occupied-border: #F8DAA9;
 
-  /* Por Cobrar (Terracota Acento) */
-  --status-pending: #9C564B;
+  /* Por Cobrar (Terracota Cálido) */
+  --status-pending: #C85A4B;
   --status-pending-bg: #FBECE9;
   --status-pending-border: #ECCDC6;
 

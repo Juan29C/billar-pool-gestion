@@ -3,7 +3,7 @@ import { CircleDot, Clock, ArrowLeft, Maximize2 } from 'lucide-react';
 import { useBillar } from '../context/BillarContext';
 
 export default function PublicDisplayView() {
-  const { tables, getTableElapsedSeconds, formatTime, setCurrentView } = useBillar();
+  const { tables, getTableTimingInfo, setCurrentView } = useBillar();
 
   const availableCount = tables.filter(t => t.status === 'available').length;
   const occupiedCount = tables.filter(t => t.status === 'occupied').length;
@@ -90,20 +90,23 @@ export default function PublicDisplayView() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '10px',
-          backgroundColor: 'rgba(156, 86, 75, 0.25)',
-          padding: '6px 18px',
+          backgroundColor: 'rgba(245, 166, 35, 0.15)',
+          border: '1px solid rgba(245, 166, 35, 0.35)',
+          padding: '6px 20px',
           borderRadius: 'var(--radius-full)',
-          marginBottom: '10px'
+          marginBottom: '10px',
+          boxShadow: '0 0 16px rgba(245, 166, 35, 0.25)'
         }}>
-          <CircleDot size={18} color="var(--color-terracotta)" />
+          <CircleDot size={18} color="#F5A623" />
           <span style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '1.1rem',
-            fontWeight: 800,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase'
+            fontSize: '1.15rem',
+            fontWeight: 900,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: '#FFFFFF'
           }}>
-            BILLAR CLUB & LOUNGE
+            <span style={{ color: '#F5A623' }}>CLUB</span> LIVERPOOL
           </span>
         </div>
 
@@ -125,13 +128,13 @@ export default function PublicDisplayView() {
           fontSize: '0.96rem',
           fontWeight: 700
         }}>
-          <span style={{ color: '#54D18C', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2E7D52' }} />
+          <span style={{ color: '#38B6FF', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#008ED6' }} />
             {availableCount} MESAS LIBRES
           </span>
           <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-          <span style={{ color: '#F5B041', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#C87A18' }} className="pulse-indicator" />
+          <span style={{ color: '#F5A623', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F5A623' }} className="pulse-indicator" />
             {occupiedCount} EN JUEGO
           </span>
         </div>
@@ -149,21 +152,29 @@ export default function PublicDisplayView() {
           const isFree = table.status === 'available';
           const isPlay = table.status === 'occupied';
           const isPool = table.tableType === 'pool' || table.type?.toLowerCase().includes('pool');
-          const elapsed = getTableElapsedSeconds(table);
+          const timing = getTableTimingInfo(table);
 
-          // Paño de fondo
+          // Paño oficial Club LIVERPOOL
           const clothBg = isFree
-            ? 'linear-gradient(145deg, #1A2E22 0%, #112017 100%)' // Paño verde en reposo
-            : 'linear-gradient(145deg, #183C2C 0%, #0E261C 100%)'; // Paño verde iluminado
+            ? 'linear-gradient(145deg, #008ED6 0%, #006AA3 100%)' // Azul Torneo disponible
+            : timing.isTimeOver
+            ? 'linear-gradient(145deg, #3D1210 0%, #1A0706 100%)' // Paño con alerta de tiempo cumplido
+            : 'linear-gradient(145deg, #005487 0%, #003657 100%)'; // Azul Torneo en juego
+
+          const borderColor = isPlay 
+            ? timing.isTimeOver 
+              ? '#E63946' 
+              : '#F5A623' 
+            : '#38322F';
 
           return (
             <div 
               key={table.id}
               style={{
                 // Mueble / Banda de mesa de billar
-                backgroundColor: '#2A2421',
-                backgroundImage: 'linear-gradient(180deg, #38302C 0%, #201B19 100%)',
-                border: '3px solid #483E38',
+                backgroundColor: '#1E1B19',
+                backgroundImage: 'linear-gradient(180deg, #2A2421 0%, #171513 100%)',
+                border: `2px solid ${borderColor}`,
                 borderRadius: '18px',
                 padding: '12px',
                 position: 'relative',
@@ -171,7 +182,11 @@ export default function PublicDisplayView() {
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 minHeight: '220px',
-                boxShadow: isPlay ? '0 10px 24px rgba(0,0,0,0.5), 0 0 0 2px #C87A18' : '0 6px 16px rgba(0,0,0,0.35)'
+                boxShadow: isPlay 
+                  ? timing.isTimeOver
+                    ? '0 0 24px rgba(230, 57, 70, 0.45), 0 10px 24px rgba(0,0,0,0.6)'
+                    : '0 0 20px rgba(245, 166, 35, 0.35), 0 10px 24px rgba(0,0,0,0.6)' 
+                  : '0 6px 16px rgba(0,0,0,0.35)'
               }}
             >
               {/* Banda Superior con Nombre de Mesa */}
@@ -267,16 +282,16 @@ export default function PublicDisplayView() {
                       display: 'inline-block',
                       padding: '8px 24px',
                       borderRadius: 'var(--radius-full)',
-                      backgroundColor: 'rgba(46, 125, 82, 0.35)',
-                      border: '1.5px solid #2E7D52',
-                      color: '#54D18C',
+                      backgroundColor: 'rgba(0, 142, 214, 0.25)',
+                      border: '1.5px solid #008ED6',
+                      color: '#38B6FF',
                       fontWeight: 800,
                       fontSize: '1.25rem',
                       letterSpacing: '0.06em'
                     }}>
                       DISPONIBLE
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#97AEA1', marginTop: '6px' }}>
+                    <div style={{ fontSize: '0.78rem', color: '#BDE3FB', marginTop: '6px' }}>
                       Tarifa: S/ {table.pricePerHour.toFixed(2)}/h
                     </div>
                   </div>
@@ -286,22 +301,32 @@ export default function PublicDisplayView() {
                       fontSize: '0.72rem',
                       textTransform: 'uppercase',
                       letterSpacing: '0.08em',
-                      color: '#F5B041',
                       fontWeight: 800,
                       marginBottom: '4px'
                     }}>
-                      PARTIDA EN CURSO
+                      {timing.playMode === 'countdown' ? (
+                        timing.isTimeOver ? (
+                          <span style={{ color: '#FF6B6B' }}>🚨 TIEMPO CUMPLIDO (EXTRA)</span>
+                        ) : timing.isNearEnd ? (
+                          <span style={{ color: '#F5A623' }}>⚠️ QUEDAN &lt; 5 MIN ({timing.targetMinutes}m)</span>
+                        ) : (
+                          <span style={{ color: '#38B6FF' }}>⏳ CUENTA REGRESIVA ({timing.targetMinutes}m)</span>
+                        )
+                      ) : (
+                        <span style={{ color: '#F5B041' }}>⏱ TIEMPO LIBRE</span>
+                      )}
                     </div>
                     <div 
                       className="tabular-nums font-display"
                       style={{
                         fontSize: '2.4rem',
                         fontWeight: 800,
-                        color: '#FFFFFF',
-                        letterSpacing: '0.04em'
+                        color: timing.isTimeOver ? '#FF6B6B' : timing.isNearEnd ? '#F5A623' : '#FFFFFF',
+                        letterSpacing: '0.04em',
+                        textShadow: timing.isTimeOver ? '0 0 16px rgba(230, 57, 70, 0.7)' : 'none'
                       }}
                     >
-                      {formatTime(elapsed)}
+                      {timing.displayTime}
                     </div>
                   </div>
                 )}
@@ -314,7 +339,13 @@ export default function PublicDisplayView() {
                 color: '#9E928A',
                 paddingTop: '4px'
               }}>
-                {isPlay ? `Inició a las ${new Date(table.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Acércate a barra para abrir mesa'}
+                {isPlay ? (
+                  timing.isTimeOver ? (
+                    <span style={{ color: '#FF8A8A', fontWeight: 700 }}>Sobretiempo en curso • Solicite extensión en caja</span>
+                  ) : (
+                    `Inició a las ${new Date(table.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                  )
+                ) : 'Acércate a barra para abrir mesa'}
               </div>
             </div>
           );

@@ -133,12 +133,7 @@ export default function POSView() {
       </div>
 
       {/* Contenedor Principal en 2 Columnas Responsivas */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) minmax(340px, 380px)',
-        gap: '24px',
-        alignItems: 'start'
-      }}>
+      <div className="pos-layout-grid">
         
         {/* =========================================================================
             COLUMNA IZQUIERDA: CATÁLOGO, BUSCADOR Y CATEGORÍAS
@@ -340,7 +335,7 @@ export default function POSView() {
         {/* =========================================================================
             COLUMNA DERECHA: CARRITO DE COMPRAS Y DESPACHO
             ========================================================================= */}
-        <div className="card" style={{
+        <div id="pos-cart-panel" className="card" style={{
           padding: '20px',
           position: 'sticky',
           top: '20px',
@@ -717,6 +712,100 @@ export default function POSView() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Barra Flotante de Carrito para Móvil / Tablet */}
+      {cartItemCount > 0 && (
+        <div 
+          className="pos-mobile-cart-bar"
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: '#1E1B19',
+            borderTop: '2px solid #F5A623',
+            padding: '12px 18px',
+            boxShadow: '0 -6px 20px rgba(0, 0, 0, 0.45)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}
+        >
+          <div 
+            onClick={() => {
+              const cartEl = document.getElementById('pos-cart-panel');
+              if (cartEl) cartEl.scrollIntoView({ behavior: 'smooth' });
+            }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          >
+            <div style={{
+              position: 'relative',
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(245, 166, 35, 0.18)',
+              border: '1px solid #F5A623',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <ShoppingCart size={20} color="#F5A623" />
+              <span style={{
+                position: 'absolute',
+                top: -5,
+                right: -5,
+                backgroundColor: '#F5A623',
+                color: '#161413',
+                fontSize: '11px',
+                fontWeight: 900,
+                borderRadius: '50%',
+                width: '18px',
+                height: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {cartItemCount}
+              </span>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.74rem', color: '#B3A69F', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Ver Carrito ({cartItemCount} und)
+              </div>
+              <div className="font-display tabular-nums" style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF' }}>
+                S/ {cartTotal.toFixed(2)}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              const cartEl = document.getElementById('pos-cart-panel');
+              if (cartEl) cartEl.scrollIntoView({ behavior: 'smooth' });
+            }}
+            style={{
+              backgroundColor: '#F5A623',
+              color: '#161413',
+              fontWeight: 800,
+              padding: '10px 18px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 0 12px rgba(245, 166, 35, 0.35)'
+            }}
+          >
+            <span>Ir a Pagar</span>
+            <Check size={16} />
+          </button>
+        </div>
       )}
 
       {/* =========================================================================

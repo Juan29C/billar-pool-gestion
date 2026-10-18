@@ -85,7 +85,7 @@ export default function DashboardView() {
       {/* KPI Cards Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
         gap: '16px',
         marginBottom: '20px'
       }}>
@@ -243,7 +243,7 @@ export default function DashboardView() {
       {/* Grid 2 Columnas: Estado de Mesas & Transacciones */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 100%, 360px), 1fr))',
         gap: '20px',
         marginBottom: '20px'
       }}>

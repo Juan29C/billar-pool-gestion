@@ -20,7 +20,9 @@ import {
   RotateCcw,
   Trash2,
   ShoppingBag,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Timer,
+  Pause
 } from 'lucide-react';
 import { useBillar } from '../context/BillarContext';
 import TableCard from '../components/TableCard';
@@ -33,12 +35,18 @@ export default function TablesView() {
     rates,
     products,
     startTable,
+    stopTable,
+    resumeTable,
+    adjustTableTime,
+    extendTableTime,
+    switchTablePlayMode,
+    adjustTableTiming,
     addOrderToTable,
     addOrdersToTable,
-    adjustTableTime,
     resetDemoData,
     checkoutTable,
     getTableElapsedSeconds,
+    getTableTimingInfo,
     getTableTimeCost,
     getTableOrdersCost,
     getTableTotalCost,
@@ -54,11 +62,17 @@ export default function TablesView() {
   // Form states: Apertura de Mesa
   const [selectedRateId, setSelectedRateId] = useState(rates[0]?.id || '');
   const [playersName, setPlayersName] = useState('');
+  const [playMode, setPlayMode] = useState('free'); // 'free' | 'countdown'
+  const [targetMinutesPreset, setTargetMinutesPreset] = useState('60'); // '30' | '45' | '60' | '90' | '120' | 'custom'
+  const [customTargetMinutes, setCustomTargetMinutes] = useState(60);
   const [startTimingMode, setStartTimingMode] = useState('0'); // '0' | '15' | '30' | '45' | '60' | 'custom'
   const [customStartMinutes, setCustomStartMinutes] = useState(15);
 
-  // Form states: Ajuste de Tiempo en mesa activa
+  // Form states: Gestión Unificada de Mesa Activa
+  const [manageTab, setManageTab] = useState('timing'); // 'timing' | 'summary'
   const [adjustMinutes, setAdjustMinutes] = useState(30);
+  const [extendInputMins, setExtendInputMins] = useState(15);
+  const [switchTargetMins, setSwitchTargetMins] = useState(60);
 
   // Form states: Cobro
   const [paymentMethod, setPaymentMethod] = useState('Efectivo');
@@ -88,6 +102,9 @@ export default function TablesView() {
     setPlayersName('');
     setStartTimingMode('0');
     setCustomStartMinutes(15);
+    setPlayMode('free');
+    setTargetMinutesPreset('60');
+    setCustomTargetMinutes(60);
     setModalType('start');
   };
 
@@ -107,8 +124,12 @@ export default function TablesView() {
 
   const handleOpenAdjustTime = (table) => {
     setSelectedTable(table);
-    const currentMins = Math.floor(getTableElapsedSeconds(table) / 60);
+    const timing = getTableTimingInfo(table);
+    const currentMins = Math.floor(timing.elapsedSeconds / 60);
     setAdjustMinutes(currentMins > 0 ? currentMins : 30);
+    setExtendInputMins(15);
+    setSwitchTargetMins(timing.targetMinutes || 60);
+    setManageTab('timing');
     setModalType('adjust_time');
   };
 
@@ -118,14 +139,19 @@ export default function TablesView() {
     setOrderBasket([]);
   };
 
-  // Apertura de mesa con soporte para inicio en tiempo real o retroactivo
+  // Apertura de mesa con soporte para modo dual (Libre vs Cuenta Regresiva) e inicio en tiempo real o retroactivo
   const confirmStart = (e) => {
     if (e) e.preventDefault();
     if (!selectedTable) return;
     const minutes = startTimingMode === 'custom' 
       ? Math.max(0, parseInt(customStartMinutes, 10) || 0) 
       : parseInt(startTimingMode, 10) || 0;
-    startTable(selectedTable.id, selectedRateId, playersName, minutes);
+
+    const finalTarget = playMode === 'countdown'
+      ? (targetMinutesPreset === 'custom' ? Math.max(5, parseInt(customTargetMinutes, 10) || 60) : parseInt(targetMinutesPreset, 10) || 60)
+      : 60;
+
+    startTable(selectedTable.id, selectedRateId, playersName, minutes, playMode, finalTarget);
     closeModal();
   };
 
@@ -135,6 +161,44 @@ export default function TablesView() {
     if (!selectedTable) return;
     adjustTableTime(selectedTable.id, adjustMinutes);
     closeModal();
+  };
+
+  // Acciones Rápidas del Modal Unificado de Gestión
+  const handleExtendCountdown = (mins) => {
+    if (!selectedTable) return;
+    extendTableTime(selectedTable.id, mins);
+  };
+
+  const handleSwitchToCountdown = (mins) => {
+    if (!selectedTable) return;
+    switchTablePlayMode(selectedTable.id, 'countdown', mins);
+  };
+
+  const handleSwitchToFree = () => {
+    if (!selectedTable) return;
+    switchTablePlayMode(selectedTable.id, 'free');
+  };
+
+  const handleStopTableFromModal = () => {
+    if (!selectedTable) return;
+    stopTable(selectedTable.id);
+  };
+
+  const handleResumeTableFromModal = () => {
+    if (!selectedTable) return;
+    resumeTable(selectedTable.id);
+  };
+
+  const handleGoToCheckoutFromModal = () => {
+    const table = selectedTable;
+    closeModal();
+    handleOpenCheckout(table);
+  };
+
+  const handleGoToAddOrderFromModal = () => {
+    const table = selectedTable;
+    closeModal();
+    handleOpenOrder(table);
   };
 
   // Funciones de Comanda Multi-Producto
@@ -364,7 +428,7 @@ export default function TablesView() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(270px, 22vw, 320px), 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(260px, 100%, 340px), 1fr))',
             gap: '18px'
           }}>
             {poolTables.map(table => (
@@ -409,7 +473,7 @@ export default function TablesView() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(270px, 22vw, 320px), 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(260px, 100%, 340px), 1fr))',
             gap: '18px'
           }}>
             {caromTables.map(table => (
@@ -484,6 +548,134 @@ export default function TablesView() {
                 autoFocus
               />
             </div>
+
+            {/* Selector de Modo de Juego: Tiempo Libre vs Cuenta Regresiva */}
+            <div className="input-group" style={{ marginBottom: 0 }}>
+              <label className="input-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Timer size={15} color="var(--color-terracotta)" />
+                  <span>Modo de Juego del Cronómetro</span>
+                </span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  {playMode === 'free' ? 'Ascendente (Arranca de 0)' : 'Cuenta Regresiva (Prepago)'}
+                </span>
+              </label>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  onClick={() => setPlayMode('free')}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: `2px solid ${playMode === 'free' ? 'var(--color-terracotta)' : 'var(--border-subtle)'}`,
+                    backgroundColor: playMode === 'free' ? 'var(--terracotta-subtle)' : 'var(--bg-canvas)',
+                    color: playMode === 'free' ? 'var(--color-terracotta)' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all var(--transition-fast)'
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>⏱ Tiempo Libre</span>
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                    Arranca en 00:00:00. Al no saber cuánto jugará, acumula hasta el cobro.
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPlayMode('countdown')}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: `2px solid ${playMode === 'countdown' ? 'var(--color-terracotta)' : 'var(--border-subtle)'}`,
+                    backgroundColor: playMode === 'countdown' ? 'var(--terracotta-subtle)' : 'var(--bg-canvas)',
+                    color: playMode === 'countdown' ? 'var(--color-terracotta)' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all var(--transition-fast)'
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>⏳ Cuenta Regresiva</span>
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                    Tiempo fijo fijado. Disminuye hasta 00:00:00, alerta 5 min y suma sobretiempo.
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Configuración de Duración para Cuenta Regresiva */}
+            {playMode === 'countdown' && (
+              <div style={{
+                padding: '12px 14px',
+                backgroundColor: 'rgba(245, 166, 35, 0.08)',
+                borderRadius: '12px',
+                border: '1.5px solid rgba(245, 166, 35, 0.35)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                  <label style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--color-charcoal)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>Duración Contratada:</span>
+                  </label>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#D97706' }}>
+                    Importe Base: S/ {(((targetMinutesPreset === 'custom' ? customTargetMinutes : parseInt(targetMinutesPreset, 10)) / 60) * (rates.find(r => r.id === selectedRateId)?.pricePerHour || 15)).toFixed(2)}
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '6px' }}>
+                  {[
+                    { id: '30', label: '30 min' },
+                    { id: '45', label: '45 min' },
+                    { id: '60', label: '1 hora' },
+                    { id: '90', label: '1h 30m' },
+                    { id: '120', label: '2 horas' },
+                    { id: 'custom', label: 'Personalizado' }
+                  ].map(preset => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setTargetMinutesPreset(preset.id)}
+                      style={{
+                        padding: '7px 8px',
+                        borderRadius: '6px',
+                        border: `1.5px solid ${targetMinutesPreset === preset.id ? '#D97706' : 'var(--border-subtle)'}`,
+                        backgroundColor: targetMinutesPreset === preset.id ? 'var(--color-terracotta)' : 'var(--surface-card)',
+                        color: targetMinutesPreset === preset.id ? '#FFFFFF' : 'var(--text-secondary)',
+                        fontWeight: 800,
+                        fontSize: '0.78rem',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'all var(--transition-fast)'
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                {targetMinutesPreset === 'custom' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Minutos a contratar:</span>
+                    <input
+                      type="number"
+                      className="input-field"
+                      style={{ width: '90px', padding: '6px 10px', textAlign: 'center', fontWeight: 800 }}
+                      min="5"
+                      max="720"
+                      value={customTargetMinutes}
+                      onChange={e => setCustomTargetMinutes(Math.max(5, parseInt(e.target.value, 10) || 5))}
+                    />
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>minutos</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Selector de Momento de Inicio */}
             <div className="input-group" style={{ marginBottom: 0 }}>
@@ -599,12 +791,7 @@ export default function TablesView() {
         }
       >
         {selectedTable && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(360px, 1.25fr) minmax(340px, 1fr)',
-            gap: '24px',
-            alignItems: 'stretch'
-          }}>
+          <div className="comanda-grid-responsive">
             {/* --- COLUMNA IZQUIERDA: CATÁLOGO Y BUSCADOR --- */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
@@ -978,110 +1165,571 @@ export default function TablesView() {
       </Modal>
 
       {/* =========================================================================
-        MODAL 4: AJUSTAR TIEMPO EN MESA ACTIVA
+        MODAL 4: GESTIÓN INTEGRAL DE MESA ACTIVA (CRONÓMETRO, MODOS, PAUSA Y CIERRE)
         ========================================================================= */}
       <Modal
         isOpen={modalType === 'adjust_time' && !!selectedTable}
         onClose={closeModal}
-        title={`Ajustar Tiempo — ${selectedTable?.name}`}
-        subtitle="Calibrar los minutos transcurridos en el cronómetro de la partida"
+        title={`Gestión de Partida — ${tables.find(t => t.id === selectedTable?.id)?.name || selectedTable?.name}`}
+        subtitle={`Control de cronómetro, modalidad y consumos (${tables.find(t => t.id === selectedTable?.id)?.type || selectedTable?.type})`}
         icon={SlidersHorizontal}
-        maxWidth="520px"
+        maxWidth="660px"
         footer={
-          <>
-            <button
-              type="button"
-              className="btn btn-secondary modal-btn"
-              onClick={closeModal}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary modal-btn"
-              onClick={confirmAdjustTime}
-            >
-              <Check size={16} />
-              <span>Guardar Nuevo Tiempo</span>
-            </button>
-          </>
+          (() => {
+            const currentTable = tables.find(t => t.id === selectedTable?.id) || selectedTable;
+            const totalCost = currentTable ? getTableTotalCost(currentTable) : 0;
+            return (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary modal-btn"
+                  onClick={closeModal}
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary modal-btn"
+                  onClick={handleGoToCheckoutFromModal}
+                  style={{
+                    backgroundColor: '#F5A623',
+                    color: '#161413',
+                    fontWeight: 800,
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <CreditCard size={16} />
+                  <span>Proceder a Cobrar (S/ {totalCost.toFixed(2)})</span>
+                </button>
+              </>
+            );
+          })()
         }
       >
-        {selectedTable && (
-          <form onSubmit={confirmAdjustTime} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label className="input-label" style={{ marginBottom: '8px', display: 'block' }}>
-                Seleccionar Minutos Transcurridos
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {[15, 30, 45, 60, 90, 120].map(mins => (
-                  <button
-                    key={mins}
-                    type="button"
-                    onClick={() => setAdjustMinutes(mins)}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: `1.5px solid ${adjustMinutes === mins ? 'var(--color-terracotta)' : 'var(--border-subtle)'}`,
-                      backgroundColor: adjustMinutes === mins ? 'var(--terracotta-subtle)' : 'var(--bg-canvas)',
-                      color: adjustMinutes === mins ? 'var(--color-terracotta)' : 'var(--color-charcoal)',
+        {(() => {
+          const currentTable = tables.find(t => t.id === selectedTable?.id) || selectedTable;
+          if (!currentTable) return null;
+
+          const timing = getTableTimingInfo(currentTable);
+          const timeCost = getTableTimeCost(currentTable);
+          const ordersCost = getTableOrdersCost(currentTable);
+          const totalCost = getTableTotalCost(currentTable);
+          const isOccupied = currentTable.status === 'occupied';
+          const isPending = currentTable.status === 'pending';
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* --- BANNER SUPERIOR DE ESTADO EN VIVO --- */}
+              <div style={{
+                backgroundColor: '#1E1B19',
+                backgroundImage: 'linear-gradient(180deg, #2A2421 0%, #171513 100%)',
+                border: isOccupied 
+                  ? timing.isTimeOver ? '2px solid #E63946' : '2px solid #F5A623'
+                  : '2px solid #C85A4B',
+                borderRadius: '14px',
+                padding: '16px',
+                color: '#FFFFFF',
+                boxShadow: isOccupied ? '0 0 16px rgba(245, 166, 35, 0.25)' : 'none'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{
+                      fontSize: '0.7rem',
                       fontWeight: 800,
-                      fontSize: '0.84rem',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {mins >= 60 ? `${mins / 60}h ${mins % 60 ? `${mins % 60}m` : ''}` : `${mins} min`}
-                  </button>
-                ))}
-              </div>
-            </div>
+                      padding: '3px 10px',
+                      borderRadius: '9999px',
+                      letterSpacing: '0.06em',
+                      backgroundColor: isOccupied ? 'rgba(245, 166, 35, 0.22)' : 'rgba(200, 90, 75, 0.25)',
+                      color: isOccupied ? '#F5A623' : '#FFA194',
+                      border: `1px solid ${isOccupied ? '#F5A623' : '#C85A4B'}`
+                    }}>
+                      {isOccupied ? 'EN JUEGO ACTIVO' : 'CRONÓMETRO DETENIDO (POR COBRAR)'}
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: '#B3A69F' }}>
+                      Cliente: <strong>{currentTable.players || 'General'}</strong>
+                    </span>
+                  </div>
 
-            <div className="input-group" style={{ marginBottom: 0 }}>
-              <label className="input-label">O ingresar minutos exactos</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="number"
-                  className="input-field"
-                  min="0"
-                  max="1440"
-                  value={adjustMinutes}
-                  onChange={e => setAdjustMinutes(Math.max(0, parseInt(e.target.value) || 0))}
-                  style={{ fontWeight: 800, fontSize: '1.05rem', textAlign: 'center', width: '120px' }}
-                />
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>minutos de juego</span>
-              </div>
-            </div>
+                  <span style={{ fontSize: '0.78rem', color: '#BDE3FB', fontWeight: 600 }}>
+                    Tarifa: S/ {currentTable.pricePerHour.toFixed(2)}/h
+                  </span>
+                </div>
 
-            {/* Vista previa del nuevo cálculo */}
-            <div style={{
-              padding: '14px',
-              backgroundColor: 'var(--bg-canvas)',
-              borderRadius: '10px',
-              border: '1px solid var(--border-subtle)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>
-                  Nuevo Cronómetro
-                </span>
-                <div className="font-display tabular-nums" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-charcoal)' }}>
-                  {formatTime(adjustMinutes * 60)}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: isOccupied ? '#F5A623' : '#FFA194', fontWeight: 800 }}>
+                      {timing.playMode === 'countdown' ? (
+                        timing.isTimeOver 
+                          ? '🚨 TIEMPO CUMPLIDO (SOBRETIEMPO)' 
+                          : `⏳ CUENTA REGRESIVA (${timing.targetMinutes} MIN)`
+                      ) : (
+                        '⏱ TIEMPO LIBRE (ASCENDENTE)'
+                      )}
+                    </div>
+                    <div className="tabular-nums font-display" style={{
+                      fontSize: '2.2rem',
+                      fontWeight: 900,
+                      color: timing.isTimeOver ? '#FF6B6B' : '#FFFFFF',
+                      letterSpacing: '0.04em',
+                      lineHeight: 1.1
+                    }}>
+                      {timing.displayTime}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.72rem', color: '#B3A69F', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Total Acumulado
+                    </div>
+                    <div className="tabular-nums font-display" style={{ fontSize: '1.6rem', fontWeight: 900, color: '#F5A623' }}>
+                      S/ {totalCost.toFixed(2)}
+                    </div>
+                    <div style={{ fontSize: '0.74rem', color: '#A8D4F0' }}>
+                      Mesa: S/ {timeCost.toFixed(2)} • Consumos: S/ {ordersCost.toFixed(2)}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>
-                  Nuevo Costo Estimado
-                </span>
-                <div className="font-display tabular-nums" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-terracotta)' }}>
-                  S/ {((adjustMinutes / 60) * selectedTable.pricePerHour).toFixed(2)}
-                </div>
+              {/* --- SELECTOR DE PESTAÑAS DENTRO DEL MODAL --- */}
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                borderBottom: '1px solid var(--border-subtle)',
+                paddingBottom: '8px'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setManageTab('timing')}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: manageTab === 'timing' ? 'var(--color-terracotta)' : 'transparent',
+                    color: manageTab === 'timing' ? '#FFFFFF' : 'var(--text-secondary)',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all var(--transition-fast)'
+                  }}
+                >
+                  <Timer size={15} />
+                  <span>Control de Cronómetro y Tiempos</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setManageTab('orders')}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: manageTab === 'orders' ? 'var(--color-terracotta)' : 'transparent',
+                    color: manageTab === 'orders' ? '#FFFFFF' : 'var(--text-secondary)',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all var(--transition-fast)'
+                  }}
+                >
+                  <Receipt size={15} />
+                  <span>Resumen de Cuenta y Consumos ({currentTable.orders.length})</span>
+                </button>
               </div>
+
+              {/* --- PESTAÑA 1: CONTROL DE CRONÓMETRO Y TIEMPOS --- */}
+              {manageTab === 'timing' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* CASO A: MESA EN CUENTA REGRESIVA */}
+                  {timing.playMode === 'countdown' ? (
+                    <div style={{
+                      padding: '14px',
+                      backgroundColor: 'rgba(245, 166, 35, 0.08)',
+                      borderRadius: '12px',
+                      border: '1.5px solid rgba(245, 166, 35, 0.35)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--color-charcoal)' }}>
+                            ⏳ Extender Tiempo Contratado (Añadir Prepago)
+                          </div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                            Pactado actual: {timing.targetMinutes} min • Suma minutos a la cuenta regresiva:
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#D97706' }}>
+                          + S/ {(currentTable.pricePerHour / 2).toFixed(2)} por cada 30m
+                        </span>
+                      </div>
+
+                      {/* Chips directos de extensión rápida */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '8px' }}>
+                        {[
+                          { mins: 15, label: '+15 min' },
+                          { mins: 30, label: '+30 min' },
+                          { mins: 45, label: '+45 min' },
+                          { mins: 60, label: '+1 hora' }
+                        ].map(item => (
+                          <button
+                            key={item.mins}
+                            type="button"
+                            onClick={() => handleExtendCountdown(item.mins)}
+                            style={{
+                              padding: '8px 10px',
+                              borderRadius: '8px',
+                              border: '1.5px solid #F5A623',
+                              backgroundColor: 'var(--surface-card)',
+                              color: '#B45309',
+                              fontWeight: 800,
+                              fontSize: '0.82rem',
+                              cursor: 'pointer',
+                              textAlign: 'center',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
+                            }}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Input para extensión personalizada */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '4px' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>O extender cantidad exacta:</span>
+                        <input
+                          type="number"
+                          className="input-field"
+                          min="5"
+                          max="300"
+                          value={extendInputMins}
+                          onChange={e => setExtendInputMins(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                          style={{ width: '80px', padding: '6px 8px', textAlign: 'center', fontWeight: 800 }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleExtendCountdown(extendInputMins)}
+                          className="btn btn-primary"
+                          style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: 800 }}
+                        >
+                          <Plus size={14} />
+                          <span>Extender</span>
+                        </button>
+                      </div>
+
+                      {/* Opción de pasar a Tiempo Libre */}
+                      <div style={{ borderTop: '1px dashed rgba(245, 166, 35, 0.4)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                          ¿El cliente ya no quiere límite de tiempo?
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleSwitchToFree}
+                          style={{
+                            background: 'none',
+                            border: '1px solid var(--border-medium)',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            color: 'var(--color-charcoal)',
+                            fontWeight: 700,
+                            fontSize: '0.76rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ⏱️ Cambiar a Tiempo Libre (Sin Límite)
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* CASO B: MESA EN TIEMPO LIBRE */
+                    <div style={{
+                      padding: '14px',
+                      backgroundColor: 'var(--bg-canvas)',
+                      borderRadius: '12px',
+                      border: '1.5px solid var(--border-subtle)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--color-charcoal)' }}>
+                            ⏱️ Ajustar Minutos Transcurridos (Corrección)
+                          </div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                            Si la mesa arrancó antes y olvidaste abrirla, calibra los minutos jugados:
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(75px, 1fr))', gap: '8px' }}>
+                        {[15, 30, 45, 60, 90, 120].map(mins => (
+                          <button
+                            key={mins}
+                            type="button"
+                            onClick={() => {
+                              setAdjustMinutes(mins);
+                              adjustTableTime(currentTable.id, mins);
+                            }}
+                            style={{
+                              padding: '8px 10px',
+                              borderRadius: '8px',
+                              border: `1.5px solid ${adjustMinutes === mins ? 'var(--color-terracotta)' : 'var(--border-subtle)'}`,
+                              backgroundColor: adjustMinutes === mins ? 'var(--terracotta-subtle)' : 'var(--surface-card)',
+                              color: adjustMinutes === mins ? 'var(--color-terracotta)' : 'var(--color-charcoal)',
+                              fontWeight: 800,
+                              fontSize: '0.8rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {mins >= 60 ? `${mins / 60}h ${mins % 60 ? `${mins % 60}m` : ''}` : `${mins} min`}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Minutos exactos:</span>
+                        <input
+                          type="number"
+                          className="input-field"
+                          min="0"
+                          max="1440"
+                          value={adjustMinutes}
+                          onChange={e => setAdjustMinutes(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                          style={{ width: '90px', padding: '6px 10px', textAlign: 'center', fontWeight: 800 }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustTableTime(currentTable.id, adjustMinutes)}
+                          className="btn btn-secondary"
+                          style={{ padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700 }}
+                        >
+                          Aplicar Minutos
+                        </button>
+                      </div>
+
+                      {/* Opción de pasar a Cuenta Regresiva */}
+                      <div style={{ borderTop: '1px dashed var(--border-medium)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                          ¿El cliente decidió jugar tiempo fijo con aviso?
+                        </span>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          {[30, 60, 90].map(m => (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => handleSwitchToCountdown(m)}
+                              style={{
+                                background: 'none',
+                                border: '1px solid var(--border-medium)',
+                                padding: '4px 8px',
+                                borderRadius: '6px',
+                                color: 'var(--color-charcoal)',
+                                fontWeight: 700,
+                                fontSize: '0.74rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              ⏳ {m >= 60 ? `${m/60}h` : `${m}m`}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* BLOQUE DE CONTROL DE PARTIDA: FINALIZAR / CONGELAR TIEMPO */}
+                  {isOccupied ? (
+                    <div style={{
+                      padding: '16px',
+                      borderRadius: '12px',
+                      backgroundColor: 'rgba(200, 90, 75, 0.08)',
+                      border: '1.5px solid rgba(200, 90, 75, 0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '14px',
+                      flexWrap: 'wrap'
+                    }}>
+                      <div style={{ flex: 1, minWidth: '240px' }}>
+                        <div style={{ fontWeight: 800, color: 'var(--color-charcoal)', fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Pause size={16} color="var(--color-terracotta)" />
+                          <span>Finalizar Tiempo de Juego (Congelar Partida)</span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          Detiene el reloj en el segundo actual. El cliente ya no acumulará más costo por tiempo mientras pide la cuenta o consume bebidas.
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleStopTableFromModal}
+                        style={{
+                          backgroundColor: '#C85A4B',
+                          color: '#FFFFFF',
+                          fontWeight: 800,
+                          fontSize: '0.84rem',
+                          padding: '10px 16px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 8px rgba(200, 90, 75, 0.35)'
+                        }}
+                      >
+                        <Pause size={15} />
+                        <span>Detener Cronómetro</span>
+                      </button>
+                    </div>
+                  ) : (
+                    /* SI LA MESA YA ESTÁ PAUSADA / POR COBRAR */
+                    <div style={{
+                      padding: '16px',
+                      borderRadius: '12px',
+                      backgroundColor: 'rgba(46, 125, 82, 0.08)',
+                      border: '1.5px solid rgba(46, 125, 82, 0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '14px',
+                      flexWrap: 'wrap'
+                    }}>
+                      <div style={{ flex: 1, minWidth: '240px' }}>
+                        <div style={{ fontWeight: 800, color: '#2E7D52', fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Play size={16} color="#2E7D52" />
+                          <span>Cronómetro Congelado • Partida Pausada</span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          El tiempo se encuentra detenido. Si el cliente decide seguir jugando, puedes reanudar la partida.
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleResumeTableFromModal}
+                        style={{
+                          backgroundColor: '#2E7D52',
+                          color: '#FFFFFF',
+                          fontWeight: 800,
+                          fontSize: '0.84rem',
+                          padding: '10px 16px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Play size={15} />
+                        <span>Reanudar Cronómetro</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* --- PESTAÑA 2: RESUMEN Y CONSUMOS --- */}
+              {manageTab === 'orders' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--color-charcoal)' }}>
+                      Productos Despachados a la Mesa ({currentTable.orders.reduce((a, b) => a + b.qty, 0)} unidades):
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleGoToAddOrderFromModal}
+                      className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700 }}
+                    >
+                      <Plus size={14} />
+                      <span>Añadir Más Consumos</span>
+                    </button>
+                  </div>
+
+                  <div style={{
+                    maxHeight: '220px',
+                    overflowY: 'auto',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--bg-canvas)',
+                    padding: '8px 12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}>
+                    {currentTable.orders.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        No hay consumos de bar o snacks cargados a esta mesa todavía.
+                      </div>
+                    ) : (
+                      currentTable.orders.map((item, idx) => (
+                        <div key={idx} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '8px 0',
+                          borderBottom: idx < currentTable.orders.length - 1 ? '1px solid var(--border-subtle)' : 'none'
+                        }}>
+                          <div>
+                            <span style={{ fontWeight: 700, fontSize: '0.84rem', color: 'var(--color-charcoal)' }}>
+                              {item.name}
+                            </span>
+                            <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginLeft: '8px' }}>
+                              (S/ {item.price.toFixed(2)} c/u)
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ fontWeight: 800, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+                              x{item.qty}
+                            </span>
+                            <span className="tabular-nums font-display" style={{ fontWeight: 800, color: 'var(--color-charcoal)', width: '65px', textAlign: 'right' }}>
+                              S/ {(item.price * item.qty).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div style={{
+                    padding: '12px 16px',
+                    backgroundColor: 'var(--surface-card)',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div>
+                      <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>
+                        Desglose General
+                      </span>
+                      <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                        Tiempo de Juego: S/ {timeCost.toFixed(2)} • Consumos: S/ {ordersCost.toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="tabular-nums font-display" style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--color-terracotta)' }}>
+                      Total: S/ {totalCost.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </form>
-        )}
+          );
+        })()}
       </Modal>
 
       {/* Modal de Confirmación para Restablecer Tiempos de Demostración */}

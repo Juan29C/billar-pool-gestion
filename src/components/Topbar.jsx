@@ -64,10 +64,10 @@ export default function Topbar({ onToggleMobileSidebar }) {
             margin: 0,
             lineHeight: 1.2
           }}>
-            {titles[currentView] || 'Billar Club'}
+            {titles[currentView] || 'Club LIVERPOOL'}
           </h1>
           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Club & Lounge — Sistema Central
+            Club LIVERPOOL — Billiards & Lounge
           </span>
         </div>
       </div>

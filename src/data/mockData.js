@@ -16,6 +16,8 @@ export const getFreshInitialTables = () => [
     rateId: 'rate_pool',
     pricePerHour: 15.00,
     status: 'occupied',
+    playMode: 'free', // 'free' (Tiempo libre ascendente) | 'countdown' (Cuenta regresiva)
+    targetMinutes: null,
     startTime: new Date(Date.now() - 52 * 60 * 1000).toISOString(), // 52 mins
     players: 'Grupo Juan & Amigos',
     orders: [
@@ -30,7 +32,9 @@ export const getFreshInitialTables = () => [
     rateId: 'rate_pool',
     pricePerHour: 15.00,
     status: 'occupied',
-    startTime: new Date(Date.now() - 85 * 60 * 1000).toISOString(), // 1h 25m
+    playMode: 'countdown', // Cuenta regresiva: solicitó 2 horas (120m)
+    targetMinutes: 120,
+    startTime: new Date(Date.now() - 85 * 60 * 1000).toISOString(), // Lleva 1h 25m, restan 35 min
     players: 'Ernesto Torres',
     orders: [
       { id: 'prod_4', name: 'Coca Cola Sin Azúcar 500ml', qty: 2, price: 4.50 },
@@ -45,6 +49,8 @@ export const getFreshInitialTables = () => [
     rateId: 'rate_pool',
     pricePerHour: 15.00,
     status: 'available',
+    playMode: 'free',
+    targetMinutes: null,
     startTime: null,
     players: '',
     orders: []
@@ -57,6 +63,8 @@ export const getFreshInitialTables = () => [
     rateId: 'rate_pool',
     pricePerHour: 15.00,
     status: 'pending', // Por cobrar
+    playMode: 'free',
+    targetMinutes: null,
     startTime: new Date(Date.now() - 65 * 60 * 1000).toISOString(),
     endTime: new Date().toISOString(),
     players: 'Familia Paredes',
@@ -74,7 +82,9 @@ export const getFreshInitialTables = () => [
     rateId: 'rate_carom',
     pricePerHour: 20.00,
     status: 'occupied',
-    startTime: new Date(Date.now() - 34 * 60 * 1000).toISOString(), // 34 mins
+    playMode: 'countdown', // Cuenta regresiva: solicitó 35 min
+    targetMinutes: 35,
+    startTime: new Date(Date.now() - 32 * 60 * 1000).toISOString(), // Lleva 32 min, restan 3 min (Alerta < 5 min activa)
     players: 'Prof. Luis Ramos',
     orders: [
       { id: 'prod_6', name: 'Agua San Mateo con Gas', qty: 1, price: 3.50 }
@@ -88,6 +98,8 @@ export const getFreshInitialTables = () => [
     rateId: 'rate_carom',
     pricePerHour: 20.00,
     status: 'available',
+    playMode: 'free',
+    targetMinutes: null,
     startTime: null,
     players: '',
     orders: []

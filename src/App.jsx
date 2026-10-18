@@ -59,7 +59,14 @@ function MainLayout() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-canvas)', position: 'relative' }}>
+    <div style={{
+      display: 'flex',
+      height: '100dvh',
+      width: '100%',
+      backgroundColor: 'var(--bg-canvas)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
       {/* Backdrop para Drawer Móvil */}
       {mobileSidebarOpen && (
         <div 
@@ -69,15 +76,23 @@ function MainLayout() {
         />
       )}
 
-      {/* Barra Lateral (Adaptada con clase responsive) */}
+      {/* Barra Lateral (Adaptada con clase responsive e independiente) */}
       <div className={`sidebar-wrapper ${mobileSidebarOpen ? 'sidebar-mobile-open' : ''}`}>
         <Sidebar onNavClick={() => setMobileSidebarOpen(false)} />
       </div>
 
-      {/* Área Principal de Trabajo */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, width: '100%' }}>
+      {/* Área Principal de Trabajo con scroll propio e independiente */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minWidth: 0,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden'
+      }}>
         <Topbar onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
-        <main style={{ flex: 1, overflowY: 'auto' }}>
+        <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {renderCurrentView()}
         </main>
       </div>

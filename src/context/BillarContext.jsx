@@ -111,13 +111,85 @@ export function BillarProvider({ children }) {
     return Math.max(0, Math.floor((endMs - startMs) / 1000));
   };
 
+  // Información completa del cronómetro según modo (Tiempo Libre vs Cuenta Regresiva)
+  const getTableTimingInfo = (table) => {
+    const defaultTarget = table?.targetMinutes || 60;
+    const playMode = table?.playMode || 'free';
+
+    if (!table || !table.startTime || table.status === 'available' || table.status === 'maintenance') {
+      return {
+        playMode,
+        targetMinutes: defaultTarget,
+        elapsedSeconds: 0,
+        remainingSeconds: defaultTarget * 60,
+        overtimeSeconds: 0,
+        displayTime: '00:00:00',
+        isNearEnd: false,
+        isTimeOver: false
+      };
+    }
+
+    const elapsedSeconds = getTableElapsedSeconds(table);
+
+    if (playMode === 'countdown') {
+      const targetSeconds = defaultTarget * 60;
+      const remainingSeconds = targetSeconds - elapsedSeconds;
+
+      if (remainingSeconds > 0) {
+        return {
+          playMode: 'countdown',
+          targetMinutes: defaultTarget,
+          elapsedSeconds,
+          remainingSeconds,
+          overtimeSeconds: 0,
+          displayTime: formatTime(remainingSeconds),
+          isNearEnd: remainingSeconds <= 300, // Menos de 5 minutos
+          isTimeOver: false
+        };
+      } else {
+        const overtimeSeconds = Math.abs(remainingSeconds);
+        return {
+          playMode: 'countdown',
+          targetMinutes: defaultTarget,
+          elapsedSeconds,
+          remainingSeconds: 0,
+          overtimeSeconds,
+          displayTime: `+${formatTime(overtimeSeconds)}`,
+          isNearEnd: false,
+          isTimeOver: true
+        };
+      }
+    }
+
+    // Modo libre tradicional (tiempo transcurrido ascendente)
+    return {
+      playMode: 'free',
+      targetMinutes: defaultTarget,
+      elapsedSeconds,
+      remainingSeconds: 0,
+      overtimeSeconds: 0,
+      displayTime: formatTime(elapsedSeconds),
+      isNearEnd: false,
+      isTimeOver: false
+    };
+  };
+
   const getTableTimeCost = (table) => {
-    const seconds = getTableElapsedSeconds(table);
-    const hours = seconds / 3600;
-    // Tarifa proporcional
-    const baseCost = hours * table.pricePerHour;
-    // Redondeo mínimo o 2 decimales
-    return Number(baseCost.toFixed(2));
+    if (!table || !table.startTime || table.status === 'available' || table.status === 'maintenance') {
+      return 0;
+    }
+    const timing = getTableTimingInfo(table);
+    if (timing.playMode === 'countdown') {
+      // Costo base por tiempo contratado
+      const baseCost = (timing.targetMinutes / 60) * table.pricePerHour;
+      // Si superó el tiempo pactado, se factura el tiempo extra transcurrido proporcionalmente
+      const overtimeCost = (timing.overtimeSeconds / 3600) * table.pricePerHour;
+      return Number((baseCost + overtimeCost).toFixed(2));
+    }
+
+    // Modo libre: costo proporcional exacto por horas
+    const hours = timing.elapsedSeconds / 3600;
+    return Number((hours * table.pricePerHour).toFixed(2));
   };
 
   const getTableOrdersCost = (table) => {
@@ -139,12 +211,14 @@ export function BillarProvider({ children }) {
   };
 
   // Acciones sobre mesas
-  const startTable = (tableId, rateId, playersName = '', minutesAgo = 0) => {
+  const startTable = (tableId, rateId, playersName = '', minutesAgo = 0, playMode = 'free', targetMinutes = 60) => {
     const rate = rates.find(r => r.id === rateId) || rates[0];
     const mins = Math.max(0, parseInt(minutesAgo, 10) || 0);
     const startTimestamp = mins > 0
       ? new Date(Date.now() - mins * 60 * 1000).toISOString()
       : new Date().toISOString();
+    const mode = playMode === 'countdown' ? 'countdown' : 'free';
+    const target = Math.max(5, parseInt(targetMinutes, 10) || 60);
 
     setTables(prev => prev.map(t => {
       if (t.id === tableId) {
@@ -157,6 +231,8 @@ export function BillarProvider({ children }) {
           startTime: startTimestamp,
           endTime: null,
           players: playersName || 'Jugador General',
+          playMode: mode,
+          targetMinutes: target,
           orders: []
         };
       }
@@ -170,6 +246,81 @@ export function BillarProvider({ children }) {
     setTables(prev => prev.map(t => {
       if (t.id === tableId) {
         return { ...t, startTime: newStartTime };
+      }
+      return t;
+    }));
+  };
+
+  // Extender tiempo contratado en cuenta regresiva
+  const extendTableTime = (tableId, additionalMinutes) => {
+    const addMins = parseInt(additionalMinutes, 10) || 0;
+    if (addMins <= 0) return;
+
+    setTables(prev => prev.map(t => {
+      if (t.id === tableId) {
+        const currentTarget = t.targetMinutes || 60;
+        return {
+          ...t,
+          playMode: 'countdown',
+          targetMinutes: currentTarget + addMins
+        };
+      }
+      return t;
+    }));
+  };
+
+  // Cambiar modalidad de juego en caliente (Tiempo Libre <-> Cuenta Regresiva)
+  const switchTablePlayMode = (tableId, newPlayMode, newTargetMinutes = 60) => {
+    setTables(prev => prev.map(t => {
+      if (t.id === tableId) {
+        const target = Math.max(5, parseInt(newTargetMinutes, 10) || 60);
+        return {
+          ...t,
+          playMode: newPlayMode === 'countdown' ? 'countdown' : 'free',
+          targetMinutes: target
+        };
+      }
+      return t;
+    }));
+  };
+
+  // Reanudar una partida que fue pausada o congelada previamente
+  const resumeTable = (tableId) => {
+    const table = tables.find(t => t.id === tableId);
+    if (!table || table.status !== 'pending') return;
+
+    const elapsedSeconds = getTableElapsedSeconds(table);
+    const newStartTime = new Date(Date.now() - elapsedSeconds * 1000).toISOString();
+
+    setTables(prev => prev.map(t => {
+      if (t.id === tableId) {
+        return {
+          ...t,
+          status: 'occupied',
+          startTime: newStartTime,
+          endTime: null
+        };
+      }
+      return t;
+    }));
+  };
+
+  // Ajuste integral de partida (tiempo jugado, modo y duración pactada)
+  const adjustTableTiming = (tableId, { minutesAgo, playMode, targetMinutes } = {}) => {
+    setTables(prev => prev.map(t => {
+      if (t.id === tableId) {
+        let updated = { ...t };
+        if (minutesAgo !== undefined && minutesAgo !== null) {
+          const mins = Math.max(0, parseInt(minutesAgo, 10) || 0);
+          updated.startTime = new Date(Date.now() - mins * 60 * 1000).toISOString();
+        }
+        if (playMode) {
+          updated.playMode = playMode === 'countdown' ? 'countdown' : 'free';
+        }
+        if (targetMinutes) {
+          updated.targetMinutes = Math.max(5, parseInt(targetMinutes, 10) || 60);
+        }
+        return updated;
       }
       return t;
     }));
@@ -514,13 +665,18 @@ export function BillarProvider({ children }) {
       currentTime,
       setCurrentView,
       getTableElapsedSeconds,
+      getTableTimingInfo,
       getTableTimeCost,
       getTableOrdersCost,
       getTableTotalCost,
       formatTime,
       startTable,
       stopTable,
+      resumeTable,
       adjustTableTime,
+      extendTableTime,
+      switchTablePlayMode,
+      adjustTableTiming,
       addOrderToTable,
       addOrdersToTable,
       resetDemoData,

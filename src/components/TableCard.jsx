@@ -4,15 +4,15 @@ import { useBillar } from '../context/BillarContext';
 
 export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, onOpenCheckoutModal, onOpenAdjustTimeModal }) {
   const { 
-    getTableElapsedSeconds, 
+    getTableElapsedSeconds,
+    getTableTimingInfo,
     getTableTimeCost, 
     getTableOrdersCost, 
     getTableTotalCost, 
     formatTime 
   } = useBillar();
 
-  const elapsedSeconds = getTableElapsedSeconds(table);
-  const timeFormatted = formatTime(elapsedSeconds);
+  const timing = getTableTimingInfo(table);
   const timeCost = getTableTimeCost(table);
   const ordersCost = getTableOrdersCost(table);
   const totalCost = getTableTotalCost(table);
@@ -22,34 +22,60 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
   const isAvailable = table.status === 'available';
   const isPool = table.tableType === 'pool' || table.type?.toLowerCase().includes('pool');
 
-  // Colores del paño según estado
+  // Colores oficiales del paño Club LIVERPOOL (Azul Eléctrico Tournament)
   const clothBg = isPending
-    ? 'linear-gradient(145deg, #42221E 0%, #2E1714 100%)' // Alerta Terracota oscuro
+    ? 'linear-gradient(145deg, #4A221C 0%, #2E1511 100%)' // Alerta cálida
     : isOccupied
-    ? 'linear-gradient(145deg, #1C3B2E 0%, #12281F 100%)' // Verde Paño Premium en juego
-    : 'linear-gradient(145deg, #242E28 0%, #1A221E 100%)'; // Paño en reposo
+    ? timing.isTimeOver
+      ? 'linear-gradient(145deg, #3D1210 0%, #1A0706 100%)' // Paño con alerta de tiempo cumplido
+      : 'linear-gradient(145deg, #005487 0%, #003657 100%)' // Azul Torneo en juego (iluminación nocturna focalizada)
+    : 'linear-gradient(145deg, #008ED6 0%, #006AA3 100%)'; // Azul Torneo LIVERPOOL disponible
+
+  const neonBarColor = timing.isTimeOver ? '#E63946' : '#F5A623';
 
   return (
     <div 
       className="animate-fade-in"
       style={{
-        // Marco exterior de la mesa de billar (Mueble de madera noble)
-        backgroundColor: '#26211E',
-        backgroundImage: 'linear-gradient(180deg, #322B28 0%, #201C1A 100%)',
-        border: '3px solid #3D3531',
+        // Marco exterior de la mesa de billar (Mueble en Carbón Profundo)
+        backgroundColor: '#1E1B19',
+        backgroundImage: 'linear-gradient(180deg, #272320 0%, #171513 100%)',
+        border: isOccupied 
+          ? timing.isTimeOver 
+            ? '2px solid #E63946' 
+            : '2px solid #F5A623' 
+          : '2px solid #38322F',
         borderRadius: '20px',
         padding: '12px',
         boxShadow: isOccupied 
-          ? '0 12px 28px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--color-terracotta)' 
-          : '0 6px 18px rgba(0, 0, 0, 0.3)',
+          ? timing.isTimeOver
+            ? '0 0 26px rgba(230, 57, 70, 0.45), 0 10px 28px rgba(0, 0, 0, 0.6)'
+            : '0 0 24px rgba(245, 166, 35, 0.35), 0 10px 28px rgba(0, 0, 0, 0.6)' 
+          : '0 6px 18px rgba(0, 0, 0, 0.25)',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         minHeight: '380px',
-        transition: 'all var(--transition-fast)'
+        transition: 'all var(--transition-fast)',
+        overflow: 'hidden'
       }}
     >
+      {/* --- INDICADOR NEÓN SUPERIOR LIVERPOOL (Efecto letrero iluminado de la entrada) --- */}
+      {isOccupied && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: '12%',
+          right: '12%',
+          height: '3px',
+          backgroundColor: neonBarColor,
+          borderRadius: '0 0 4px 4px',
+          boxShadow: `0 0 10px ${neonBarColor}, 0 0 20px ${neonBarColor}`,
+          zIndex: 10
+        }} />
+      )}
+
       {/* --- ESQUINEROS METÁLICOS / PROTECTORES DE BANDA --- */}
       <div style={{ position: 'absolute', top: 5, left: 5, width: 14, height: 14, borderTop: '2px solid #8A7B73', borderLeft: '2px solid #8A7B73', borderTopLeftRadius: '10px' }} />
       <div style={{ position: 'absolute', top: 5, right: 5, width: 14, height: 14, borderTop: '2px solid #8A7B73', borderRight: '2px solid #8A7B73', borderTopRightRadius: '10px' }} />
@@ -124,12 +150,13 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
         <span style={{
           fontSize: '0.7rem',
           fontWeight: 800,
-          padding: '3px 8px',
+          padding: '3px 10px',
           borderRadius: '9999px',
           letterSpacing: '0.06em',
-          backgroundColor: isAvailable ? 'rgba(46, 125, 82, 0.25)' : isOccupied ? 'rgba(200, 122, 24, 0.25)' : 'rgba(156, 86, 75, 0.35)',
-          color: isAvailable ? '#54D18C' : isOccupied ? '#F5B041' : '#E88B7D',
-          border: `1px solid ${isAvailable ? '#2E7D52' : isOccupied ? '#C87A18' : '#9C564B'}`
+          backgroundColor: isAvailable ? 'rgba(0, 142, 214, 0.22)' : isOccupied ? 'rgba(245, 166, 35, 0.22)' : 'rgba(200, 90, 75, 0.25)',
+          color: isAvailable ? '#38B6FF' : isOccupied ? '#F5A623' : '#FFA194',
+          border: `1px solid ${isAvailable ? '#008ED6' : isOccupied ? '#F5A623' : '#C85A4B'}`,
+          boxShadow: isOccupied ? '0 0 8px rgba(245, 166, 35, 0.35)' : 'none'
         }}>
           {isAvailable ? 'DISPONIBLE' : isOccupied ? 'EN JUEGO' : 'POR COBRAR'}
         </span>
@@ -140,8 +167,8 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
         margin: '8px 0',
         borderRadius: '12px',
         background: clothBg,
-        border: '3px solid #1A1614',
-        boxShadow: 'inset 0 4px 16px rgba(0, 0, 0, 0.65)',
+        border: '3px solid #141110',
+        boxShadow: 'inset 0 4px 18px rgba(0, 0, 0, 0.75)',
         position: 'relative',
         padding: '16px 14px',
         display: 'flex',
@@ -157,7 +184,7 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
           left: '10%',
           right: '10%',
           height: '60%',
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.14) 0%, transparent 80%)',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.16) 0%, transparent 80%)',
           pointerEvents: 'none'
         }} />
 
@@ -190,17 +217,17 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
         {/* Cliente o Tarifa */}
         <div style={{ zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           {(isOccupied || isPending) && table.players ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#E8E1DC' }}>
-              <Users size={13} color="var(--color-terracotta)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#F0ECE8' }}>
+              <Users size={13} color="#F5A623" />
               <span>Cliente: <strong>{table.players}</strong></span>
             </div>
           ) : (
-            <span style={{ fontSize: '0.78rem', color: '#A3B8AC' }}>
+            <span style={{ fontSize: '0.78rem', color: '#BDE3FB' }}>
               Tarifa: S/ {table.pricePerHour.toFixed(2)}/h
             </span>
           )}
 
-          <span style={{ fontSize: '0.75rem', color: '#A3B8AC', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.75rem', color: '#BDE3FB', fontWeight: 600 }}>
             {table.type}
           </span>
         </div>
@@ -209,22 +236,56 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
         <div style={{
           textAlign: 'center',
           padding: '12px 6px',
-          backgroundColor: 'rgba(10, 16, 13, 0.55)',
+          backgroundColor: 'rgba(4, 15, 26, 0.65)',
           borderRadius: '10px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(2px)',
+          border: isOccupied 
+            ? timing.isTimeOver
+              ? '1px solid rgba(230, 57, 70, 0.6)'
+              : timing.isNearEnd
+              ? '1px solid rgba(245, 166, 35, 0.7)'
+              : '1px solid rgba(245, 166, 35, 0.35)'
+            : '1px solid rgba(0, 142, 214, 0.22)',
+          backdropFilter: 'blur(3px)',
           zIndex: 2,
           margin: 'auto 0'
         }}>
+          {/* Header del tipo de cronómetro */}
           <div style={{
             fontSize: '0.68rem',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
-            color: isOccupied ? 'var(--color-terracotta)' : '#8FA498',
             fontWeight: 800,
-            marginBottom: '2px'
+            marginBottom: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px'
           }}>
-            {isOccupied ? 'Tiempo de Juego' : isPending ? 'Tiempo Final' : 'Mesa en Espera'}
+            {isPending ? (
+              <span style={{ color: '#FFA194' }}>Tiempo Finalizado</span>
+            ) : isOccupied ? (
+              timing.playMode === 'countdown' ? (
+                timing.isTimeOver ? (
+                  <span style={{ color: '#FF6B6B', backgroundColor: 'rgba(230, 57, 70, 0.2)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(230, 57, 70, 0.5)' }}>
+                    🚨 TIEMPO CUMPLIDO (SOBRETIEMPO)
+                  </span>
+                ) : timing.isNearEnd ? (
+                  <span style={{ color: '#F5A623', backgroundColor: 'rgba(245, 166, 35, 0.2)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(245, 166, 35, 0.5)' }}>
+                    ⚠️ QUEDAN &lt; 5 MIN ({timing.targetMinutes}m)
+                  </span>
+                ) : (
+                  <span style={{ color: '#38B6FF' }}>
+                    ⏳ CUENTA REGRESIVA ({timing.targetMinutes} MIN)
+                  </span>
+                )
+              ) : (
+                <span style={{ color: '#F5A623' }}>
+                  ⏱ TIEMPO LIBRE (ASCENDENTE)
+                </span>
+              )
+            ) : (
+              <span style={{ color: '#7EC3EE' }}>Mesa en Espera</span>
+            )}
           </div>
 
           <div 
@@ -233,45 +294,69 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
               fontSize: '2.1rem',
               fontWeight: 800,
               letterSpacing: '0.05em',
-              color: isOccupied ? '#FFFFFF' : '#6A8073'
+              color: isOccupied 
+                ? timing.isTimeOver
+                  ? '#FF6B6B'
+                  : timing.isNearEnd
+                  ? '#F5A623'
+                  : '#FFFFFF' 
+                : isPending
+                ? '#FFA194'
+                : '#8EC5E8',
+              textShadow: isOccupied 
+                ? timing.isTimeOver
+                  ? '0 0 18px rgba(230, 57, 70, 0.65)'
+                  : timing.isNearEnd
+                  ? '0 0 16px rgba(245, 166, 35, 0.65)'
+                  : '0 0 16px rgba(245, 166, 35, 0.35)' 
+                : 'none'
             }}
           >
-            {(isOccupied || isPending) ? timeFormatted : '00:00:00'}
+            {(isOccupied || isPending) ? timing.displayTime : '00:00:00'}
           </div>
 
           {(isOccupied || isPending) && (
             <div style={{
               fontSize: '0.72rem',
-              color: '#B2C5BA',
+              color: timing.isTimeOver ? '#FFB4B4' : '#A8D4F0',
               marginTop: '4px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '6px',
+              flexWrap: 'wrap'
             }}>
               <Clock size={12} />
               <span>Inició: {new Date(table.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              {onOpenAdjustTimeModal && isOccupied && (
+              {timing.playMode === 'countdown' && (
+                <span>• Pactado: {timing.targetMinutes}m</span>
+              )}
+              {timing.isTimeOver && (
+                <span style={{ color: '#FF6B6B', fontWeight: 700 }}>
+                  • Extra: +{formatTime(timing.overtimeSeconds)}
+                </span>
+              )}
+              {onOpenAdjustTimeModal && (isOccupied || isPending) && (
                 <button
                   type="button"
-                  title="Ajustar tiempo del cronómetro"
+                  title="Gestionar cronómetro, tiempos y modalidad de la partida"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenAdjustTimeModal(table);
                   }}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    border: '1px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF',
+                    background: timing.isTimeOver ? 'rgba(230, 57, 70, 0.25)' : 'rgba(245, 166, 35, 0.2)',
+                    border: timing.isTimeOver ? '1px solid rgba(230, 57, 70, 0.5)' : '1px solid rgba(245, 166, 35, 0.4)',
+                    color: timing.isTimeOver ? '#FF8A8A' : '#F5A623',
                     borderRadius: '4px',
-                    padding: '1px 6px',
-                    fontSize: '0.66rem',
+                    padding: '2px 8px',
+                    fontSize: '0.68rem',
                     cursor: 'pointer',
-                    fontWeight: 700,
+                    fontWeight: 800,
                     lineHeight: 1.2
                   }}
                 >
-                  Ajustar
+                  ⚙️ Ajustar
                 </button>
               )}
             </div>
@@ -289,7 +374,7 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
             justifyContent: 'space-between',
             alignItems: 'flex-end'
           }}>
-            <div style={{ fontSize: '0.75rem', color: '#B2C5BA' }}>
+            <div style={{ fontSize: '0.75rem', color: '#A8D4F0' }}>
               <div>Mesa: S/ {timeCost.toFixed(2)}</div>
               <div>Consumos ({table.orders.reduce((a, b) => a + b.qty, 0)}): S/ {ordersCost.toFixed(2)}</div>
             </div>
@@ -301,8 +386,9 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
               <div className="tabular-nums font-display" style={{
                 fontSize: '1.35rem',
                 fontWeight: 800,
-                color: 'var(--color-terracotta)',
-                lineHeight: 1
+                color: '#F5A623',
+                lineHeight: 1,
+                textShadow: '0 0 10px rgba(245, 166, 35, 0.3)'
               }}>
                 S/ {totalCost.toFixed(2)}
               </div>
@@ -319,8 +405,18 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
       }}>
         {isAvailable && (
           <button 
+            type="button"
             className="btn btn-primary"
-            style={{ width: '100%', fontSize: '0.88rem', padding: '9px' }}
+            style={{ 
+              width: '100%', 
+              fontSize: '0.88rem', 
+              padding: '9px',
+              backgroundColor: '#F5A623',
+              color: '#161413',
+              fontWeight: 800,
+              border: 'none',
+              boxShadow: '0 0 14px rgba(245, 166, 35, 0.35)'
+            }}
             onClick={() => onOpenStartModal(table)}
           >
             <Play size={15} fill="currentColor" />
@@ -331,16 +427,25 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
         {isOccupied && (
           <>
             <button 
+              type="button"
               className="btn btn-secondary btn-sm"
-              style={{ flex: 1, backgroundColor: '#332C28', color: '#FFFFFF', borderColor: '#453C37' }}
+              style={{ flex: 1, backgroundColor: '#282320', color: '#FFFFFF', borderColor: '#423934' }}
               onClick={() => onOpenOrderModal(table)}
             >
-              <Coffee size={14} color="var(--color-terracotta)" />
+              <Coffee size={14} color="#F5A623" />
               <span>+ Consumo</span>
             </button>
             <button 
+              type="button"
               className="btn btn-primary btn-sm"
-              style={{ flex: 1 }}
+              style={{ 
+                flex: 1,
+                backgroundColor: '#F5A623',
+                color: '#161413',
+                fontWeight: 800,
+                border: 'none',
+                boxShadow: '0 0 12px rgba(245, 166, 35, 0.3)'
+              }}
               onClick={() => onOpenCheckoutModal(table)}
             >
               <CheckCircle2 size={14} />
@@ -351,8 +456,18 @@ export default function TableCard({ table, onOpenStartModal, onOpenOrderModal, o
 
         {isPending && (
           <button 
+            type="button"
             className="btn btn-primary"
-            style={{ width: '100%', fontSize: '0.88rem', padding: '9px' }}
+            style={{ 
+              width: '100%', 
+              fontSize: '0.88rem', 
+              padding: '9px',
+              backgroundColor: '#F5A623',
+              color: '#161413',
+              fontWeight: 800,
+              border: 'none',
+              boxShadow: '0 0 14px rgba(245, 166, 35, 0.35)'
+            }}
             onClick={() => onOpenCheckoutModal(table)}
           >
             <CheckCircle2 size={15} />

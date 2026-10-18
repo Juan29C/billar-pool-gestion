@@ -80,10 +80,10 @@ export default function Sidebar({ onNavClick }) {
       flexDirection: 'column',
       flexShrink: 0,
       height: '100%',
-      minHeight: '100dvh',
+      maxHeight: '100dvh',
       color: 'var(--text-on-dark)',
       transition: 'width 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-      overflowX: 'hidden'
+      overflow: 'hidden'
     }}>
       {/* Brand Header */}
       <div style={{
@@ -93,22 +93,24 @@ export default function Sidebar({ onNavClick }) {
         justifyContent: effectiveCollapsed ? 'center' : 'space-between',
         borderBottom: '1px solid var(--surface-dark-soft)',
         minHeight: '74px',
-        gap: '10px'
+        gap: '10px',
+        flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-          {/* Imagotipo: Bola 8 Estilizada */}
+          {/* Imagotipo: Bola 8 Estilizada con Resplandor Neón */}
           <div style={{
             width: '38px',
             height: '38px',
             borderRadius: '10px',
-            backgroundColor: 'var(--color-terracotta)',
+            backgroundColor: '#1E1A18',
+            border: '1.5px solid #F5A623',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
-            boxShadow: '0 4px 12px rgba(156, 86, 75, 0.4)',
+            color: '#F5A623',
+            boxShadow: '0 0 14px rgba(245, 166, 35, 0.45)',
             flexShrink: 0
-          }} title="Billar Club & Lounge">
+          }} title="Club LIVERPOOL">
             <CircleDot size={22} strokeWidth={2.5} />
           </div>
 
@@ -116,23 +118,23 @@ export default function Sidebar({ onNavClick }) {
             <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
               <h2 style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: '1.15rem',
-                fontWeight: 800,
+                fontSize: '1.18rem',
+                fontWeight: 900,
                 color: '#FFFFFF',
-                lineHeight: 1.2,
-                letterSpacing: '0.02em',
+                lineHeight: 1.15,
+                letterSpacing: '0.04em',
                 margin: 0
               }}>
-                BILLAR CLUB
+                <span style={{ color: '#F5A623', textShadow: '0 0 10px rgba(245, 166, 35, 0.4)' }}>CLUB</span> LIVERPOOL
               </h2>
               <span style={{
                 fontSize: '0.72rem',
-                color: 'var(--text-on-dark-subtle)',
+                color: '#008ED6',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                fontWeight: 600
+                fontWeight: 700
               }}>
-                Lounge & Management
+                Billiards & Lounge
               </span>
             </div>
           )}
@@ -168,6 +170,7 @@ export default function Sidebar({ onNavClick }) {
       <nav style={{
         padding: effectiveCollapsed ? '16px 8px' : '16px 12px',
         flex: 1,
+        minHeight: 0,
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -266,7 +269,8 @@ export default function Sidebar({ onNavClick }) {
         borderTop: '1px solid var(--border-dark)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '8px',
+        flexShrink: 0
       }}>
         {!effectiveCollapsed && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>

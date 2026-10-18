@@ -1,17 +1,17 @@
-# DESIGN.md — Sistema de Diseño Visual para Billar Club & Lounge
+# DESIGN.md — Sistema de Diseño Visual: Club LIVERPOOL
 
-**Versión:** 1.0  
-**Enfoque:** Premium, Moderno, Cálido y Sofisticado  
-**Objetivo:** Establecer la guía visual estricta para garantizar una experiencia de usuario llamativa, coherente y comercialmente atractiva en todas las pantallas del sistema.
+**Versión:** 2.0 (Identidad Oficial Club LIVERPOOL)  
+**Enfoque:** Lounge Nocturno, Mesas Profesionales Tournament Blue y Neón Ámbar  
+**Objetivo:** Establecer la guía visual estricta para garantizar una experiencia de usuario idéntica a la atmósfera real del club (iluminación neón cálida, mesas de competencia y paño azul eléctrico).
 
 ---
 
 ## 1. Filosofía y Dirección Visual
 
-El sistema se aleja de la estética anticuada de software de escritorio tradicional para ofrecer una experiencia visual propia de un **Club & Lounge de Billar contemporáneo**:
-* **Atmósfera cálida y refinada**: Contrastes elegantes inspirados en materiales nobles (maderas oscuras, cuero, iluminación cálida y metales sobrios).
-* **Claridad operativa inmediata**: La interfaz es limpia, sin saturación innecesaria ni sombras exageradas, priorizando la legibilidad de cronómetros, importes y estados de mesa a cualquier distancia.
-* **Micro-interacciones vivas**: Transiciones sutiles, estados de hover claros, efectos de brillo controlado en cronómetros activos y pulsos suaves en partidas en curso.
+El sistema refleja fielmente el ambiente y la arquitectura del local real (**Club LIVERPOOL**):
+* **Atmósfera Lounge Nocturna**: Fondo en carbón profundo (`#1A1817` / `#161413`) con iluminación ámbar cálida focal, eliminando el verde oliva apagado genérico.
+* **Mesas Profesionales Tournament Blue**: El paño de las mesas de billar reproduce el **Azul Eléctrico Torneo (`#008ED6`)** característico de mesas profesionales (Rasson / Simonis), visible desde el acceso al club.
+* **Luz Neón de Entrada**: El letrero emblemático de la entrada se traslada a la interfaz a través del **Neón Ámbar (`#F5A623`)**, aplicado en cronómetros activos, botones de acción VIP y resplandores de partidas en juego.
 
 ---
 
@@ -21,37 +21,20 @@ El sistema se aleja de la estética anticuada de software de escritorio tradicio
 
 | Color | Hex | Rol y Aplicación Principal |
 | :--- | :--- | :--- |
-| **Carbón Cálido** | `#2B2725` | **Superficie de Control**: Barra lateral (sidebar), barra superior (topbar), encabezados de tablas, modales oscuros y elementos que requieran máxima jerarquía estructural. |
-| **Terracota** | `#9C564B` | **Acento Protagonista**: Botones principales (CTA), pestañas activas, elementos seleccionados, bordes focales y destacados de conversión/cobro. |
-| **Blanco Puro** | `#FFFFFF` | **Lienzo de Trabajo**: Fondo de tarjetas, paneles de contenido, formularios, modales diurnos y celdas de datos. |
+| **Carbón Profundo** | `#1A1817` / `#221E1D` | **Superficie y Estructura**: Sidebar, topbar, marcos de las mesas y bordes contenedores (similar al entorno nocturno del club). |
+| **Azul LIVERPOOL** | `#008ED6` / `#0077C8` | **Identidad de Paño y Acento**: Paño principal de juego en las mesas de billar, pestañas activas y elementos focales del sistema. |
+| **Neón Ámbar** | `#F5A623` / `#E69A09` | **Luz e Indicadores VIP**: Botones CTA primarios, contadores de tiempo activo, bordes con brillo (glow) para partidas en juego y destacados de cobro. |
 
-### 2.2. Paleta Extendida y Superficies Neutras
+### 2.2. Colores Semánticos y Estados de Mesas
 
-Para evitar interfaces planas y asegurar un contraste agradable y ergonómico:
-
-| Token CSS | Hex | Propósito |
-| :--- | :--- | :--- |
-| `--bg-canvas` | `#F8F6F4` | Fondo general de la aplicación (crema/gris neutro muy suave, cálido). |
-| `--surface-card` | `#FFFFFF` | Superficie de tarjetas y contenedores principales. |
-| `--surface-hover` | `#F1ECE8` | Estados de hover en listas y filas de tablas. |
-| `--border-subtle` | `#E5DED8` | Bordes suaves de separación en tarjetas y divisiones. |
-| `--text-primary` | `#2B2725` | Texto principal de alto contraste y títulos. |
-| `--text-muted` | `#7D726D` | Subtítulos, metadatos, etiquetas secundarias e indicadores auxiliares. |
-| `--brand-dark-soft`| `#38322F` | Sub-niveles de la barra lateral y tarjetas oscuras secundarias. |
-| `--brand-accent-hover`| `#83453B` | Hover de botones terracota (oscurecido elegante). |
-| `--brand-accent-subtle`| `#F7EBE8` | Fondos de tags/badges activos con texto terracota. |
-
-### 2.3. Colores Semánticos y Estados de Mesas
-
-Los colores funcionales se calibran para convivir armónicamente con el carbón cálido y el terracota, evitando tonos fluorescentes estridentes:
+Los tonos del mapa de mesas en la interfaz se mantienen con el color azul característico cuando la mesa esté disponible, y usan el ámbar neón o terracota cuando la mesa esté en juego o por cobrar:
 
 | Estado | Color | Hex | Fondo de Tag (Badge) | Significado Operativo |
 | :--- | :--- | :--- | :--- | :--- |
-| **Disponible** | Verde Salvia / Esmeralda | `#2E7D52` | `#EAF5EE` | Mesa lista para abrir partida. |
-| **Ocupada / Activa** | Ámbar Cálido | `#C87A18` | `#FDF4E7` | Partida en curso (cronómetro corriendo). |
-| **Por Cobrar / Cierre** | Terracota Alerta | `#9C564B` | `#FBECE9` | Partida finalizada pendiente de pago en caja. |
-| **Mantenimiento** | Gris Pizarra | `#66615E` | `#EFECE9` | Fuera de servicio o paño en mantención. |
-| **Peligro / Anular** | Carmín Cálido | `#B93838` | `#FDEBEB` | Acciones destructivas y alertas críticas de stock. |
+| **Disponible / Libre** | Azul Paño Tournament | `#008ED6` | `#E8F4FC` | Mesa lista. Muestra el paño azul torneo original del club. |
+| **Ocupada / Activa** | Ámbar Neón (LIVERPOOL) | `#F5A623` | `#FDF4E7` | Partida en curso (cronómetro corriendo y resplandor neón encendido). |
+| **Por Cobrar / Cierre** | Terracota Cálido | `#C85A4B` | `#FBECE9` | Partida finalizada pendiente de pago en caja. |
+| **Mantenimiento** | Gris Pizarra Oscuro | `#4A4543` | `#EFECE9` | Fuera de servicio o paño en mantenimiento. |
 
 ---
 
@@ -89,100 +72,85 @@ Para mantener un aspecto sobrio y refinado:
 ## 5. Diseño y Anatomía de Componentes Clave
 
 ### 5.1. Barra de Navegación Lateral (Sidebar)
-* Fondo: **Carbón Cálido (`#2B2725`)**.
-* Logotipo superior: Tipografía estilizada con emblema de billar sutil en acabado Terracota y Blanco.
+* Fondo: **Carbón Profundo (`#1A1817` / `#161413`)**.
+* Logotipo superior: Emblema circular Bola 8 en **Neón Ámbar (`#F5A623`)** con texto estricto **"CLUB LIVERPOOL — Billiards & Lounge"**.
 * Ítems de navegación:
-  * Reposo: Texto e icono en gris cálido suave (`#A89F99`), hover sutil a `#3D3734`.
-  * Activo: Fondo Terracota con opacidad (`rgba(156, 86, 75, 0.25)` o sólido), borde indicador izquierdo de `4px` en `#9C564B` y texto blanco brillante.
-* Pie de barra: Indicador de turno de caja activo y botón de colapsar.
+  * Reposo: Texto e icono en gris cálido suave (`#A89F99`), hover sutil a `#2A2421`.
+  * Activo: Fondo sutil con resplandor, indicador neón lateral izquierdo en `#F5A623` y texto blanco brillante de alto contraste.
+* Pie de barra: Indicador de turno de caja activo con led verde esmeralda y botón de colapso rápido.
 
 ### 5.2. Tarjeta de Mesa de Billar (Componente Estrella)
-La tarjeta es el elemento visual más importante del panel:
+La tarjeta representa la mesa física real de billar:
 * **Cabecera de Tarjeta**:
-  * Número y Tipo de mesa (ej. *Mesa 01 — Tres Bandas*).
-  * Badge de estado con color semántico (Libre, Ocupada, Por cobrar).
-* **Cuerpo de Tarjeta**:
-  * **Cronómetro Visual**: Bloque central de alto contraste con fondo suave o display digital estilizado.
-  * Datos en tiempo real: Hora de inicio, tiempo transcurrido, consumos adicionales sumados y tarifa por hora.
-  * **Importe acumulado estimado**: Destacado en tipografía grande con símbolo de moneda (`S/ 00.00`).
+  * Identificador (ej. *Mesa 01 — Mesa de Pool*) y distintivo visual (Bola 8 para Pool, Tríada de bolas para Tres Bandas).
+  * Badge de estado: Azul Torneo (`DISPONIBLE`), Ámbar Neón (`EN JUEGO`), Terracota (`POR COBRAR`).
+* **Cuerpo de Tarjeta (Paño de Juego)**:
+  * **Paño Oficial**: Degradado en **Azul Eléctrico Tournament (`#008ED6`)**.
+  * **Indicador Neón Superior**: Línea superior con resplandor neón dorado/ámbar (`0 0 10px #F5A623, 0 0 20px #F5A623`) cuando la mesa está en juego, o rojo neón (`#E63946`) si el tiempo prepago culminó.
+  * **Cronómetro Dual**:
+    * *Modo Libre*: Ascendente desde `00:00:00`.
+    * *Modo Cuenta Regresiva*: Descendente con aviso neón a los 5 min (`⚠️ QUEDAN < 5 MIN`) y sobretiempo acumulativo rojo (`🚨 TIEMPO CUMPLIDO +HH:MM:SS`).
+  * Botón directo **`⚙️ Ajustar`** para abrir el Panel Unificado de Gestión de Partida.
+  * Desglose de costo de tiempo, consumos sumados y **Total Acumulado en Ámbar Neón (`S/ XX.XX`)**.
 * **Pie de Tarjeta (Acciones Operativas)**:
-  * Si está Libre: Botón primario Terracota *"Abrir Partida"*.
-  * Si está Ocupada: Botón secundario *"Añadir Consumo"* + Botón Terracota *"Finalizar / Cobrar"*.
-  * Efecto animado: Pulso sutil en el cronómetro cuando la partida está en curso.
+  * Mesa Libre: Botón primario en Ámbar Neón *"Abrir Mesa"*.
+  * Mesa Ocupada: Botón *"☕ + Consumo"* + Botón Ámbar Neón *"✓ Cobrar"*.
 
 ### 5.3. Punto de Venta (POS) y Carrito
-* **Catálogo en Grid**: Tarjetas de productos visuales con foto o pictograma elegante de producto, nombre, stock restante en badge y precio destacado.
-* **Carrito Lateral Flotante / Anclado**:
-  * Lista rápida de ítems con botones `+` y `-`.
-  * Opción de asociar a una mesa activa o cobro directo independiente.
-  * Selector de método de pago táctil (Efectivo, Yape, Plin, Tarjeta).
-  * Botón Terracota de gran tamaño: *"Confirmar Venta (S/ XX.XX)"*.
+* **Catálogo en Grid**: Tarjetas visuales con pictograma de categoría, nombre, badge de stock y precio en Ámbar Neón.
+* **Carrito Lateral Desktop**: Anclado a la derecha con botones táctiles `[-] [qty] [+]`, selector de pago y liquidación inmediata.
+* **Barra Flotante Móvil (`.pos-mobile-cart-bar`)**: En pantallas $\le 960\text{px}$, si hay productos en el carrito, se despliega una barra fija inferior interactiva con badge numérico neón y botón *"Ir a Pagar"* con salto suave.
 
 ### 5.4. Pantalla Pública Vertical (Modo TV / Pantalla en Sala)
-* **Orientación**: Optimizado para pantalla vertical (portrait 1080x1920) y adaptable a horizontal.
-* **Estilo Visual**: Fondo Carbón Cálido (`#2B2725`) con alto contraste para lectura a más de 5 metros de distancia.
+* **Orientación**: Optimizado para pantallas verticales (portrait) y televisores de salón.
+* **Estilo Visual**: Fondo nocturno Carbón Profundo (`#231F1D`) con alto contraste para lectura a distancia.
 * **Contenido**:
-  * Identificador gigante de mesa.
-  * Semáforo visual claro (Verde = Disponible, Ámbar = En juego).
-  * Sin botones interactivos, sin importes de caja ni datos sensibles.
-  * Barra inferior con fecha/hora actual y mensaje de bienvenida / promociones.
+  * Cabecera neón con emblema oficial **CLUB LIVERPOOL**.
+  * Cuadrícula de mesas con paño Azul Torneo.
+  * Tiempo restante en vivo en cuenta regresiva con alertas luminosas o tiempo transcurrido en modo libre.
 
 ---
 
 ## 6. Micro-Animaciones y Experiencia Interactiva
 
 * **Feedback táctil y de clic**: Escala sutil `transform: scale(0.98)` en botones al hacer clic.
-* **Transiciones de vista**: Fade-in suave de `150ms` a `200ms` al cambiar de módulo.
-* **Cronómetros**: Actualización por segundo sin parpadeo del layout (fuentes monoespaciadas).
-* **Modales**: Apertura suave con backdrop difuminado (`backdrop-filter: blur(4px); background: rgba(43, 39, 37, 0.4)`).
+* **Transiciones de vista**: Fade-in suave de `150ms` al cambiar de módulo.
+* **Cronómetros**: Actualización por segundo sin parpadeo del layout (fuentes tabulares `tabular-nums`).
+* **Resplandores Neón**: Pulsos de advertencia en ámbar y rojo al expirar tiempos prepago.
 
 ---
 
 ## 7. Criterios de Aprobación de Diseño
 
 Toda pantalla construida debe cumplir rigurosamente con:
-1. Usar únicamente los tokens de color definidos (`#2B2725`, `#9C564B`, `#FFFFFF` y sus neutros armónicos).
+1. Usar únicamente los tokens de color oficiales (`#1A1817`, `#008ED6`, `#F5A623`).
 2. Mantener la consistencia en espaciados (múltiplos de 4px y 8px).
 3. Nunca dejar botones sin hover o estados interactivos inertes.
-4. Garantizar legibilidad perfecta con contrastes accesibles WCAG AA.
+4. Garantizar legibilidad perfecta nocturna con contrastes accesibles WCAG AA.
 
 ---
 
-## 8. Estrategia Responsive, Sidebar Compacto y Componentes Especiales
+## 8. Estrategia Responsive, Sidebar Compacto y Modales Avanzados
 
-### 8.1. Breakpoints y Adaptabilidad Multi-Dispositivo (Laptop vs. Monitor)
-* **Monitor Amplio (≥ 1280px)**: Sidebar expandido (260px) o colapsado a elección, grid de mesas de 3 a 4 columnas con proporciones holgadas.
-* **Laptop y Portátiles (901px a 1279px)**:
-  * Alto de viewport reducido (~700px a 768px): el sidebar colapsable permite liberar **188px de ancho horizontal**.
-  * Grid de mesas fluido con `clamp(280px, 28vw, 360px)` para evitar apretamiento o scroll vertical innecesario.
-* **Tablet y Móvil (≤ 900px)**:
-  * Sidebar se convierte en **drawer off-canvas** animado con overlay oscuro, accesible mediante botón de menú en la barra superior.
-  * Modales adoptan formato **bottom-sheet táctil** (esquinas redondeadas arriba, 100% de ancho) para uso cómodo con una sola mano.
+### 8.1. Breakpoints y Adaptabilidad Multi-Dispositivo
+* **Monitor Amplio (≥ 1024px)**: Sidebar persistente (260px o 72px colapsado), grid de mesas de 3 a 4 columnas y catálogo POS a 3 columnas + carrito lateral.
+* **Tablet (768px a 1023px)**:
+  * Grid de mesas a 2 columnas balanceadas.
+  * POS en cuadrícula fluida con carrito reposicionado y acceso ágil.
+* **Móvil (≤ 767px)**:
+  * Sidebar en drawer táctil off-canvas con backdrop difuminado.
+  * Tarjetas de mesa a 1 columna ocupando el 100% del ancho (`clamp(260px, 100%, 340px)`).
+  * Modales en formato **bottom-sheet táctil** (anclados abajo con esquinas redondeadas superiores y botones de ancho completo de $\ge 44\text{px}$).
 
-### 8.2. Sidebar Dinámico: Modo Expandido vs. Modo Compacto
-* **Modo Expandido (260px)**: Emblema completo, nombre del club, textos de módulo, badges de estado y panel de turno.
-* **Modo Compacto (72px)**:
-  * Solo los **iconos preponderantes** centrados verticalmente con acabado Terracota en hover/activo.
-  * Emblema superior condensado con la Bola 8 de billar.
-  * Badges circulares flotantes sobre el icono para notificar mesas activas.
-  * **Tooltips flotantes instantáneos** al pasar el cursor sobre cada icono.
-  * Botón de alternancia (*Toggle*) accesible en la base del sidebar con guardado de preferencia en `localStorage`.
+### 8.2. Modal Unificado de Gestión de Partida Activa (`Modal 4`, 660px)
+* Panel de control integral para partidas en juego o congeladas:
+  * Pestaña de tiempos: Extensión rápida de cuenta regresiva (`+15m`, `+30m`, `+45m`, `+1h`), cambio de modalidad en caliente (Libre <-> Regresiva) y corrección de apertura tardía.
+  * **Botón de Acción Rápida: "⏸️ Detener Cronómetro / Congelar Partida"**: Detiene el reloj en el segundo actual sin liberar consumos ni la cuenta, protegiendo al cliente de cobros indebidos mientras pide el ticket.
+  * Botón para **"▶️ Reanudar Cronómetro"** si la mesa fue detenida por error.
+  * Pestaña de consumos con desglose financiero y botón directo para proceder a cobrar en caja.
 
-### 8.3. Navegación con Soporte de Rueda de Ratón (Scroll Click / Middle Click)
-* Todos los ítems del sidebar se implementan con elementos de anclaje nativos `<a>` con URLs de hash (`#tables`, `#pos`, `#inventory`).
-* **Clic Izquierdo**: Navegación instantánea en la misma pestaña sin recarga de página (SPA).
-* **Clic Central (Rueda del Ratón / Scroll Click)** o `Ctrl + Clic`: Apertura de la vista seleccionada en una pestaña nueva limpia y funcional.
-
-### 8.4. Catálogo Integrado y Buscador Limpio de Productos
-* En lugar de selectores flotantes que tapen los controles, el modal de consumos integra el buscador directamente en el cuerpo del diálogo:
-  * **Input con invitación activa**: `🔍 Escribe para buscar (ej. cerveza, tequeños, red bull)...` sin producto forzado por defecto.
-  * **Chips de categoría rápidos** (*Todos*, *Cervezas*, *Bebidas*, *Piqueos*, *Snacks*).
-  * Lista visual accesible con icono de producto, código SKU, nombre, precio destacado en Terracota (`S/ XX.00`) y badge de inventario.
-
-### 8.5. Arquitectura de Modales Espaciosos y Centrado Absoluto (Anti-Cortes)
-* **Centrado Absoluto**: El contenedor de modales utiliza `display: flex; align-items: center; justify-content: center; margin: auto;` y `max-height: min(90vh, 760px)`, garantizando que el modal jamás se caiga al suelo de la pantalla ni quede cortado por la barra de tareas de Windows.
-* **Escala de Anchos según Función Operativa**:
-  * **Modal de Consumos (Catálogo 2 Columnas)**: **`maxWidth: 840px`**. A la izquierda el buscador y lista de productos; a la derecha la ficha del producto seleccionado, selector táctil de cantidades `[-] [ 1 ] [+]` y la cuenta histórica de la mesa.
-  * **Modal de Liquidación y Cobro (Voucher)**: **`maxWidth: 640px`**, espacioso, con desglose contable alineado a la derecha y selector táctil de método de pago (44px).
-  * **Modal de Inicio de Partida**: **`maxWidth: 560px`**, claro, con selector de tarifas por hora.
-* **Cabecera Nocturna Estilo Billar Club**: Fondo Carbón Cálido (`#2B2725`) con acentos Terracota e iconografía temática.
+### 8.3. Modal de Comanda Multi-Producto (`Modal 2`, 1020px)
+* Diseño responsive de dos columnas (`.comanda-grid-responsive`):
+  * Columna izquierda con catálogo y buscador instantáneo.
+  * Columna derecha con canasta interactiva `[-] [qty] [+]` para despachar múltiples cervezas, cócteles y piqueos en una sola acción con descuento automático de inventario.
+  * En tablets y móviles se apila verticalmente de forma fluida sin desbordamientos.

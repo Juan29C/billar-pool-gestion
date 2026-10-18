@@ -1,14 +1,14 @@
 # PLAN.md — Plan de Maquetación e Implementación de Interfaces Visuales
 
-**Proyecto:** Sistema de Gestión para Billar Club & Lounge  
-**Documentos de Referencia:** [SPEC.md](file:///c:/xampp/htdocs/billar/SPEC.md) & [DESIGN.md](file:///c:/xampp/htdocs/billar/DESIGN.md)  
-**Alcance:** Prototipo visual interactivo navegable (Front-end), maquetación de alta fidelidad, simulaciones locales y cumplimiento estricto del sistema de diseño.
+**Proyecto:** Sistema de Gestión para Billar Club & Lounge (Club LIVERPOOL)  
+**Documentos de Referencia:** [SPEC.md](file:///c:/xampp/htdocs/billar/SPEC.md), [DESIGN.md](file:///c:/xampp/htdocs/billar/DESIGN.md), [PENDIENTES.md](file:///c:/xampp/htdocs/billar/PENDIENTES.md)  
+**Alcance:** Prototipo visual interactivo navegable (Front-end), maquetación de alta fidelidad, simulaciones locales y cumplimiento estricto del sistema de diseño oficial de Club LIVERPOOL (**Azul Eléctrico Tournament `#008ED6`**, **Neón Ámbar `#F5A623`** y **Carbón Profundo `#161413`**).
 
 ---
 
 ## 1. Objetivo General
 
-Desarrollar una aplicación web interactiva y comercialmente presentable que cumpla con todos los requisitos visuales y de interacción descritos en [SPEC.md](file:///c:/xampp/htdocs/billar/SPEC.md), implementando la identidad visual refinada en [DESIGN.md](file:///c:/xampp/htdocs/billar/DESIGN.md) con la paleta de tres colores base (**Carbón Cálido `#2B2725`**, **Terracota `#9C564B`** y **Blanco `#FFFFFF`**).
+Desarrollar una aplicación web interactiva y comercialmente presentable que cumpla con todos los requisitos visuales y de interacción descritos en [SPEC.md](file:///c:/xampp/htdocs/billar/SPEC.md), implementando la identidad visual del local real (**Club LIVERPOOL**) con mesas en paño azul torneo profesional, iluminación ámbar neón, doble modalidad de cronómetros (Libre vs. Cuenta Regresiva) y adaptabilidad responsive completa para smartphones, tablets y monitores. El seguimiento detallado de ítems se gestiona a través del checklist vivo en [PENDIENTES.md](file:///c:/xampp/htdocs/billar/PENDIENTES.md).
 
 ---
 
@@ -24,36 +24,39 @@ Desarrollar una aplicación web interactiva y comercialmente presentable que cum
 
 ## 3. Fases de Implementación
 
-### Fase 1: Cimientos del Sistema de Diseño y Layout Base
+### Fase 1: Cimientos del Sistema de Diseño y Layout Base — [COMPLETADA Y VERIFICADA]
 * Configurar el proyecto y la estructura de carpetas (`src/components`, `src/views`, `src/styles`, `src/mockData`).
-* Crear el archivo de tokens CSS (`tokens.css`) con variables para colores (`#2B2725`, `#9C564B`, `#FFFFFF`, semánticos), tipografías, radios y sombras.
+* Crear el archivo de tokens CSS (`tokens.css`) con variables para la tríada oficial LIVERPOOL (`#1A1817`, `#008ED6`, `#F5A623`), tipografías, radios y sombras.
 * Construir los componentes estructurales globales:
-  * **Sidebar**: Navegación con los 9 módulos, estado activo en terracota, branding del local y colapsable en pantallas pequeñas.
+  * **Sidebar**: Navegación con los 9 módulos, estado activo en Ámbar Neón, branding del local y colapsable en pantallas pequeñas.
   * **Topbar**: Breadcrumbs, buscador rápido, estado de turno de caja y perfil de usuario.
   * **Layout Wrapper**: Contenedor responsivo (escritorio, tablet y móvil).
 
 ---
 
-### Fase 2: Componentes Reutilizables de Interfaz (Design System Avanzado)
+### Fase 2: Componentes Reutilizables de Interfaz (Design System Avanzado) — [COMPLETADA Y VERIFICADA]
 Construir los componentes atómicos y moleculares para evitar duplicidad de estilos:
-* **Botones**: Primario Terracota, Secundario neutro, Contorno y Peligro con alturas táctiles uniformes de 44px.
+* **Botones**: Primario Ámbar Neón LIVERPOOL, Secundario neutro, Contorno y Peligro con alturas táctiles uniformes de 44px.
 * **Badges / Chips**: Estados de mesa (Disponible, Ocupada, Por cobrar, Mantenimiento) y estados de stock.
 * **Tarjetas y Contenedores**: Con bordes suaves y elevación nivel 1/2.
 * **Inputs y Selects**: Con estilo pulido y validaciones visuales.
 * **Buscador de Productos (`ProductSearchSelect`)**: Combobox reutilizable con autocompletado en tiempo real, chips de categorías, precios y badges de stock.
-* **Modales Reutilizables Temáticos (`Modal` & `ConfirmModal`)**: Cabecera nocturna en Carbón Cálido (`#2B2725`), iconografía de billar/bar, alineación simétrica y formato bottom-sheet táctil en pantallas pequeñas.
+* **Modales Reutilizables Temáticos (`Modal` & `ConfirmModal`)**: Cabecera nocturna en Carbón Profundo (`#1A1817`), iconografía de billar/bar, alineación simétrica y formato bottom-sheet táctil en pantallas pequeñas.
 * **Sidebar Dinámico**: Modo expandido (260px) y compacto (72px), con soporte nativo de apertura en nueva pestaña vía clic central (scroll-click).
 
 ---
 
-### Fase 3: Módulo de Mesas (Núcleo Operativo Físico) — [COMPLETADA Y POTENCIADA]
+### Fase 3: Módulo de Mesas (Núcleo Operativo Físico) — [COMPLETADA Y VERIFICADA]
 * **Grid de Mesas Adaptativo (Laptop vs. Monitor)**:
   * Distribución oficial del local: 6 mesas físicas (4 de Pool con 6 troneras y 2 de Billar Francés con diamantes).
   * Cronómetro visual en vivo por segundo (horas, minutos y segundos).
   * Tarifa por hora aplicada y cálculo dinámico de importe en tiempo real (`S/ XX.XX`).
 * **Control y Calibración de Tiempos**:
+  * **Dualidad de Cronómetros (Tiempo Libre vs. Cuenta Regresiva)**:
+    * **Modo Tiempo Libre**: Cronómetro ascendente continuo desde `00:00:00`, facturación proporcional por horas.
+    * **Modo Cuenta Regresiva**: Tiempo contratado fijo (chips de 30m, 45m, 1h, 1h 30m, 2h o personalizado). Cuenta descendente en vivo, alerta luminosa y aviso a los 5 minutos (`< 5 MIN`), y al cumplirse los 00:00:00 activa alarma visual roja e inicia cronómetro progresivo de sobretiempo (`+HH:MM:SS`) sumando la tarifa extra.
   * Selector de momento de inicio al abrir mesa: En tiempo real (00:00:00) o retroactivo (hace 15, 30, 45, 60 min o personalizado).
-  * Modal de ajuste de tiempo en mesas activas (`Modal 4`) para calibrar minutos transcurridos directamente.
+  * **Modal Unificado de Gestión de Partida Activa (`Modal 4`, 660px)**: Panel de control integral para mesas en juego o por cobrar. Pestaña de tiempos para extender cuenta regresiva (`+15m`, `+30m`, `+45m`, `+1h`), cambiar modalidad en caliente (Libre <-> Regresiva), calibrar minutos transcurridos, **botón de acción rápida para finalizar/congelar cronómetro inmediatamente** (`stopTable`), botón para reanudar partida (`resumeTable`), y pestaña de resumen de cuenta con salto directo a liquidación y cobro.
   * Botón de restauración limpia de tiempos de prueba (`Restablecer Tiempos Demo`) con confirmación segura para sanear cronómetros acumulados en el navegador.
 * **Modales Interactivos Temáticos de Alta Visibilidad**:
   * Modal *Iniciar Partida*: Selección de tarifa, cliente y selector de tiempo de inicio (ancho optimizado 600px).
@@ -108,18 +111,32 @@ Construir los componentes atómicos y moleculares para evitar duplicidad de esti
 
 ---
 
-### Fase 7: Pantalla Pública Vertical (Modo TV / Sala)
+### Fase 7: Pantalla Pública Vertical (Modo TV / Sala) — [COMPLETADA Y VERIFICADA]
 * Crear la ruta independiente `/pantalla-mesas` (sin sidebar administrativo).
 * Optimizar la disposición para pantallas verticales (orientación portrait).
-* Tipografía de gran escala, alto contraste carbón/blanco/terracota visible a distancia.
-* Semáforos de disponibilidad de mesas y mensajes del establecimiento.
+* Tipografía de gran escala, alto contraste carbón/blanco/neón ámbar visible a distancia.
+* Semáforos de disponibilidad de mesas y branding oficial Club LIVERPOOL con resplandor neón.
 
 ---
 
-### Fase 8: Revisión Final, Responsive y Pulido de Detalles
-* Ajustes de responsive design: Desktop amplio, tablet (sidebar compacta) y móvil.
-* Comprobación de contrastes accesibles y micro-animaciones en todos los botones y modales.
-* Validación frente a todos los criterios de aceptación de [SPEC.md](file:///c:/xampp/htdocs/billar/SPEC.md).
+### Fase 8: Adaptabilidad Responsive por Módulos y Pulido Final — [COMPLETADA Y VERIFICADA]
+* **Mesas de Billar (`TablesView`)**:
+  * Desktop: Grid 3-4 columnas con tarjeta extendida y esquineros metálicos.
+  * Tablet: Grid 2 columnas balanceadas táctiles.
+  * Móvil (<768px): Tarjeta vertical compacta fluida con modales tipo bottom-sheet táctiles adaptados al viewport sin recortes.
+* **Punto de Venta (`POSView`)**:
+  * Desktop: Catálogo en cuadrícula fluida + carrito lateral fijo.
+  * Móvil / Tablet: Reorganización en 1 columna mediante `pos-layout-grid` y barra flotante interactiva fija inferior (*"🛒 Ver Carrito (X) • S/ XX.XX — Ir a Pagar"*) con salto suave a liquidación.
+* **Inventario (`InventoryView`)**:
+  * Scroll horizontal suave controlado con `-webkit-overflow-scrolling: touch` y KPIs adaptables en 2 columnas móviles.
+  * Botones de ajuste rápido de existencias `[- / +]` ampliados a 32px para toque táctil ergonómico.
+* **Caja y Turnos (`CashRegisterView`)**:
+  * Rejilla adaptativa de canales de pago (`minmax(150px, 1fr)`) y modales de arqueo sin desbordamiento.
+* **Dashboard (`DashboardView`)**:
+  * KPIs fluidos de 2 a 4 columnas según ancho de viewport y cuadrícula de distribución de mesas con clamp preventivo contra desbordamiento horizontal.
+* **Validación**:
+  * Cero desbordamientos horizontales en teléfonos y tablets.
+  * Altura mínima de toques táctiles cómoda en toda la interfaz.
 
 ---
 
@@ -130,24 +147,27 @@ billar/
 ├── SPEC.md
 ├── DESIGN.md
 ├── PLAN.md
+├── PENDIENTES.md
 ├── package.json
 ├── index.html
 ├── src/
 │   ├── main.jsx
 │   ├── App.jsx
 │   ├── styles/
-│   │   ├── tokens.css          # Variables (#2B2725, #9C564B, #FFFFFF, etc.)
+│   │   ├── tokens.css          # Variables (#161413, #008ED6, #F5A623, etc.)
 │   │   ├── global.css          # Reseteo y tipografías
-│   │   └── components.css      # Estilos comunes de botones, tarjetas, badges
+│   │   └── components.css      # Estilos comunes de botones, tarjetas, badges, modales bottom-sheet
 │   ├── data/
 │   │   └── mockData.js         # Mesas, productos, tarifas y transacciones ficticias
 │   ├── context/
-│   │   └── BillarContext.jsx   # Estado interactivo simulado (mesas activas, carrito)
+│   │   └── BillarContext.jsx   # Estado interactivo simulado (mesas activas, dual timer, comanda, carrito)
 │   ├── components/
 │   │   ├── Sidebar.jsx
 │   │   ├── Topbar.jsx
-│   │   ├── TableCard.jsx       # Tarjeta de mesa con cronómetro
+│   │   ├── TableCard.jsx       # Tarjeta de mesa con cronómetro dual y resplandor neón
 │   │   ├── Modal.jsx
+│   │   ├── ConfirmModal.jsx
+│   │   ├── ProductSearchSelect.jsx
 │   │   └── POSCart.jsx
 │   └── views/
 │       ├── DashboardView.jsx
@@ -165,8 +185,8 @@ billar/
 
 ## 5. Criterios de Éxito de la Entrega
 
-1. **Fidelidad al Diseño**: 100% de coherencia con la paleta de Carbón Cálido, Terracota y Blanco definida en [DESIGN.md](file:///c:/xampp/htdocs/billar/DESIGN.md).
-2. **Interactividad Fluida**: Mesas con cronómetro activo en tiempo real, adición de consumos y cálculo de tarifas funcional.
-3. **Punto de Venta Operativo en Demo**: Carrito de compras reactivo y registro simulado sin errores.
-4. **Vista Vertical Independiente**: Lista y accesible para pruebas en pantalla tipo quiosco/TV.
-5. **Cero Errores de Consola**: Navegación y cambios de estado limpios y rápidos.
+1. **Fidelidad al Diseño**: 100% de coherencia con la paleta de Carbón Profundo (`#1A1817`), Azul Eléctrico Torneo (`#008ED6`) y Neón Ámbar (`#F5A623`) definida en [DESIGN.md](file:///c:/xampp/htdocs/billar/DESIGN.md).
+2. **Interactividad Fluida**: Mesas con cronómetro dual en tiempo real (Libre vs. Cuenta Regresiva), comanda multi-producto por mesa, congelamiento/pausa de tiempo y cálculo dinámico de tarifas.
+3. **Punto de Venta y Control de Inventario**: Carrito de compras reactivo con barra flotante móvil, catálogo fluido y ajuste táctil de existencias.
+4. **Vista Vertical Independiente**: Lista y accesible en `/pantalla-mesas` para monitores de sala con resplandor neón.
+5. **Cero Errores de Consola y Compilación Limpia**: Navegación ágil, modales tipo bottom-sheet en móviles y build de producción verificado sin advertencias.

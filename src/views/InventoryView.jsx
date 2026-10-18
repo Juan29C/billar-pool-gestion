@@ -171,7 +171,7 @@ export default function InventoryView() {
       {/* KPI Cards de Resumen */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
         gap: '16px',
         marginBottom: '20px'
       }}>
@@ -380,16 +380,19 @@ export default function InventoryView() {
                             onClick={() => adjustStock(p.id, -1)}
                             disabled={p.stock <= 0}
                             style={{
-                              width: '24px',
-                              height: '24px',
-                              borderRadius: '6px',
-                              border: '1px solid var(--border-subtle)',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '8px',
+                              border: '1px solid var(--border-medium)',
                               backgroundColor: 'var(--bg-canvas)',
                               cursor: p.stock <= 0 ? 'not-allowed' : 'pointer',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              color: 'var(--color-charcoal)'
+                              color: 'var(--color-charcoal)',
+                              fontSize: '1rem',
+                              fontWeight: 800,
+                              touchAction: 'manipulation'
                             }}
                             title="Restar 1 unidad"
                           >
@@ -404,16 +407,19 @@ export default function InventoryView() {
                             type="button"
                             onClick={() => adjustStock(p.id, 1)}
                             style={{
-                              width: '24px',
-                              height: '24px',
-                              borderRadius: '6px',
-                              border: '1px solid var(--border-subtle)',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '8px',
+                              border: '1px solid var(--border-medium)',
                               backgroundColor: 'var(--bg-canvas)',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              color: 'var(--color-charcoal)'
+                              color: 'var(--color-charcoal)',
+                              fontSize: '1rem',
+                              fontWeight: 800,
+                              touchAction: 'manipulation'
                             }}
                             title="Sumar 1 unidad"
                           >
